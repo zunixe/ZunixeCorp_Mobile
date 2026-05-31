@@ -1,0 +1,22 @@
+{
+  "project_id": "4ae2d1b1-e70f-4594-835d-60f6900f209f",
+  "project_title": "Zunixe Mobile - Development",
+  "resources": [
+    {
+      "id": "57e81360-11d2-45db-b2c3-8bb98930d8a8",
+      "resource_type": "github_repo",
+      "resource_ref": {
+        "url": "https://github.com/zunixe/ZunixeCorp_Mobile.git"
+      }
+    },
+    {
+      "id": "84a86e16-8546-4d9d-9c81-55827279ce37",
+      "resource_type": "local_directory",
+      "resource_ref": {
+        "label": "local-clone",
+        "daemon_id": "019e7953-dea6-7e48-86ee-b523a490ee5c",
+        "local_path": "/Users/zunixe/Documents/ZunixeCorp_Mobile"
+      }
+    }
+  ]
+}
