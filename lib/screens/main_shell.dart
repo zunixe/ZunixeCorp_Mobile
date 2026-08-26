@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import 'home_screen.dart';
 import 'products_screen.dart';
 import 'cart_screen.dart';
 import 'account_screen.dart';
 import 'chat_screen.dart';
+import '../providers/cart_provider.dart';
 
 class MainShell extends StatefulWidget {
   const MainShell({super.key});
@@ -31,6 +33,7 @@ class _MainShellState extends State<MainShell> {
 
   @override
   Widget build(BuildContext context) {
+    final cart = context.watch<CartProvider>();
     return Scaffold(
       body: IndexedStack(
         index: _currentIndex,
@@ -54,12 +57,17 @@ class _MainShellState extends State<MainShell> {
           unselectedItemColor: Colors.grey[500],
           selectedFontSize: 11,
           unselectedFontSize: 11,
-          items: const [
-            BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Home'),
-            BottomNavigationBarItem(icon: Icon(Icons.grid_view), label: 'Produk'),
-            BottomNavigationBarItem(icon: Icon(Icons.shopping_cart), label: 'Keranjang'),
-            BottomNavigationBarItem(icon: Icon(Icons.person), label: 'Akun'),
-            BottomNavigationBarItem(icon: Icon(Icons.chat), label: 'Chat'),
+          items: [
+            const BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Home'),
+            const BottomNavigationBarItem(icon: Icon(Icons.grid_view), label: 'Produk'),
+            BottomNavigationBarItem(
+              icon: cart.itemCount > 0
+                  ? Badge(label: Text('${cart.itemCount}'), child: const Icon(Icons.shopping_cart))
+                  : const Icon(Icons.shopping_cart),
+              label: 'Keranjang',
+            ),
+            const BottomNavigationBarItem(icon: Icon(Icons.person), label: 'Akun'),
+            const BottomNavigationBarItem(icon: Icon(Icons.chat), label: 'Chat'),
           ],
         ),
       ),

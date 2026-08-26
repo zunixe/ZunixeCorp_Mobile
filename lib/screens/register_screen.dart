@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import '../providers/auth_provider.dart';
+import '../widgets/app_header.dart';
 
 class RegisterScreen extends StatefulWidget {
   const RegisterScreen({super.key});
@@ -27,19 +30,29 @@ class _RegisterScreenState extends State<RegisterScreen> {
     super.dispose();
   }
 
-  void _register() {
+  void _register() async {
     if (!_formKey.currentState!.validate()) return;
 
     setState(() => _loading = true);
-    Future.delayed(const Duration(seconds: 1), () {
-      setState(() => _loading = false);
-      if (mounted) {
-        ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text('Pendaftaran berhasil! Silakan masuk.'), backgroundColor: Color(0xFF1BA303)),
-        );
-        Navigator.pop(context);
-      }
-    });
+    final auth = context.read<AuthProvider>();
+    final ok = await auth.register(
+      _emailCtrl.text.trim(),
+      _passCtrl.text,
+      _nameCtrl.text.trim(),
+      phone: _phoneCtrl.text.trim().isEmpty ? null : _phoneCtrl.text.trim(),
+    );
+    setState(() => _loading = false);
+    if (!mounted) return;
+    if (ok) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text('Pendaftaran berhasil! Silakan masuk.'), backgroundColor: Color(0xFF1BA303)),
+      );
+      Navigator.pop(context);
+    } else {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text(auth.error ?? 'Pendaftaran gagal'), backgroundColor: Colors.red),
+      );
+    }
   }
 
   @override
@@ -47,27 +60,28 @@ class _RegisterScreenState extends State<RegisterScreen> {
     return Scaffold(
       backgroundColor: Colors.white,
       body: SafeArea(
-        child: Form(
-          key: _formKey,
-          child: ListView(
-            padding: const EdgeInsets.all(24),
-            children: [
-              const SizedBox(height: 24),
-              Row(
-                children: [
-                  GestureDetector(
-                    onTap: () => Navigator.pop(context),
-                    child: const Icon(Icons.arrow_back, color: Color(0xFF3C3C3C)),
-                  ),
-                ],
-              ),
-              const SizedBox(height: 32),
-              const Text(
-                'Daftar',
-                style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold, color: Color(0xFF3C3C3C)),
-              ),
-              const SizedBox(height: 8),
-              Text('Buat akun baru di Zunixe', style: TextStyle(fontSize: 14, color: Colors.grey[600])),
+        child: Column(
+          children: [
+            const AppHeader(
+              title: 'zunixe',
+              showBack: true,
+              showSearch: false,
+              showCart: false,
+              showProfile: false,
+            ),
+            Expanded(
+              child: Form(
+                key: _formKey,
+                child: ListView(
+                  padding: const EdgeInsets.all(24),
+                  children: [
+                    const SizedBox(height: 8),
+                    const Text(
+                      'Daftar',
+                      style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold, color: Color(0xFF3C3C3C)),
+                    ),
+                    const SizedBox(height: 8),
+                    Text('Buat akun baru di Zunixe', style: TextStyle(fontSize: 14, color: Colors.grey[600])),
               const SizedBox(height: 32),
               TextFormField(
                 controller: _nameCtrl,
@@ -152,8 +166,11 @@ class _RegisterScreenState extends State<RegisterScreen> {
             ],
           ),
         ),
-      ),
-    );
+        ),
+      ],
+    ),
+  ),
+);
   }
 
   InputDecoration _inputDecoration(String label, IconData icon) {

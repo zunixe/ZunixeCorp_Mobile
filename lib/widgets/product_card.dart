@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
 import '../models/product.dart';
+import '../providers/cart_provider.dart';
 
 class ProductCard extends StatelessWidget {
   final Product product;
@@ -10,6 +12,7 @@ class ProductCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final discount = product.discountPercent;
+    final isNetwork = product.imageUrl.startsWith('http');
 
     return GestureDetector(
       onTap: onTap,
@@ -28,49 +31,58 @@ class ProductCard extends StatelessWidget {
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            Expanded(
+            AspectRatio(
+              aspectRatio: 1,
               child: Container(
                 width: double.infinity,
                 decoration: BoxDecoration(
                   color: const Color(0xFFF9F9F9),
                   borderRadius: const BorderRadius.vertical(top: Radius.circular(8)),
                 ),
-                child: Stack(
-                  children: [
-                    ClipRRect(
-                      borderRadius: const BorderRadius.vertical(top: Radius.circular(8)),
-                      child: Image.asset(
-                        product.imageUrl,
-                        fit: BoxFit.cover,
-                        width: double.infinity,
-                        height: double.infinity,
-                        cacheWidth: 256,
-                        errorBuilder: (context, error, stackTrace) => Center(
-                          child: Icon(Icons.image, size: 48, color: Colors.grey[300]),
-                        ),
-                      ),
-                    ),
-                    if (discount > 0)
-                      Positioned(
-                        top: 8,
-                        left: 8,
-                        child: Container(
-                          padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 3),
-                          decoration: BoxDecoration(
-                            color: const Color(0xFFC8102E),
-                            borderRadius: BorderRadius.circular(4),
-                          ),
-                          child: Text(
-                            '-$discount%',
-                            style: const TextStyle(
-                              color: Colors.white,
-                              fontSize: 11,
-                              fontWeight: FontWeight.bold,
+                child: ClipRRect(
+                  borderRadius: const BorderRadius.vertical(top: Radius.circular(8)),
+                  child: Stack(
+                    fit: StackFit.expand,
+                    children: [
+                      isNetwork
+                          ? Image.network(
+                              product.imageUrl,
+                              fit: BoxFit.cover,
+                              cacheWidth: 400,
+                              errorBuilder: (context, error, stackTrace) => Center(
+                                child: Icon(Icons.image, size: 48, color: Colors.grey[300]),
+                              ),
+                            )
+                          : Image.asset(
+                              product.imageUrl,
+                              fit: BoxFit.cover,
+                              cacheWidth: 400,
+                              errorBuilder: (context, error, stackTrace) => Center(
+                                child: Icon(Icons.image, size: 48, color: Colors.grey[300]),
+                              ),
+                            ),
+                      if (discount > 0)
+                        Positioned(
+                          top: 8,
+                          left: 8,
+                          child: Container(
+                            padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 3),
+                            decoration: BoxDecoration(
+                              color: const Color(0xFFC8102E),
+                              borderRadius: BorderRadius.circular(4),
+                            ),
+                            child: Text(
+                              '-$discount%',
+                              style: const TextStyle(
+                                color: Colors.white,
+                                fontSize: 11,
+                                fontWeight: FontWeight.bold,
+                              ),
                             ),
                           ),
                         ),
-                      ),
-                  ],
+                    ],
+                  ),
                 ),
               ),
             ),
@@ -104,20 +116,38 @@ class ProductCard extends StatelessWidget {
                     ),
                   ),
                   const SizedBox(height: 6),
-                  Container(
-                    width: double.infinity,
-                    padding: const EdgeInsets.symmetric(vertical: 8),
-                    decoration: BoxDecoration(
-                      color: const Color(0xFF0C0103),
-                      borderRadius: BorderRadius.circular(12),
-                    ),
-                    child: const Text(
-                      'Beli',
-                      textAlign: TextAlign.center,
-                      style: TextStyle(
-                        color: Colors.white,
-                        fontSize: 12,
-                        fontWeight: FontWeight.w600,
+                  GestureDetector(
+                    onTap: () {
+                      final cart = context.read<CartProvider>();
+                      cart.addToCart(
+                        productId: product.id,
+                        productName: product.name,
+                        productImage: product.imageUrl,
+                        price: product.price.round(),
+                      );
+                      ScaffoldMessenger.of(context).showSnackBar(
+                        SnackBar(
+                          content: Text('${product.name} ditambahkan ke keranjang'),
+                          backgroundColor: const Color(0xFF1BA303),
+                          duration: const Duration(seconds: 2),
+                        ),
+                      );
+                    },
+                    child: Container(
+                      width: double.infinity,
+                      padding: const EdgeInsets.symmetric(vertical: 8),
+                      decoration: BoxDecoration(
+                        color: const Color(0xFF0C0103),
+                        borderRadius: BorderRadius.circular(12),
+                      ),
+                      child: const Text(
+                        'Beli',
+                        textAlign: TextAlign.center,
+                        style: TextStyle(
+                          color: Colors.white,
+                          fontSize: 12,
+                          fontWeight: FontWeight.w600,
+                        ),
                       ),
                     ),
                   ),

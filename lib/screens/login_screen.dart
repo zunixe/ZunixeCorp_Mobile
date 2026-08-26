@@ -1,4 +1,7 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import '../widgets/app_header.dart';
+import '../providers/auth_provider.dart';
 import 'register_screen.dart';
 
 class LoginScreen extends StatefulWidget {
@@ -26,23 +29,24 @@ class _LoginScreenState extends State<LoginScreen> {
     return Scaffold(
       backgroundColor: Colors.white,
       body: SafeArea(
-        child: ListView(
-          padding: const EdgeInsets.all(24),
+        child: Column(
           children: [
-            const SizedBox(height: 24),
-            Row(
-              children: [
-                GestureDetector(
-                  onTap: () => Navigator.pop(context),
-                  child: const Icon(Icons.arrow_back, color: Color(0xFF3C3C3C)),
-                ),
-              ],
+            const AppHeader(
+              title: 'zunixe',
+              showBack: true,
+              showSearch: false,
+              showCart: false,
+              showProfile: false,
             ),
-            const SizedBox(height: 32),
-            const Text(
-              'Masuk',
-              style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold, color: Color(0xFF3C3C3C)),
-            ),
+            Expanded(
+              child: ListView(
+                padding: const EdgeInsets.all(24),
+                children: [
+                  const SizedBox(height: 8),
+                  const Text(
+                    'Masuk',
+                    style: TextStyle(fontSize: 28, fontWeight: FontWeight.bold, color: Color(0xFF3C3C3C)),
+                  ),
             const SizedBox(height: 8),
             Text(
               'Masuk ke akun Zunixe Anda',
@@ -85,7 +89,11 @@ class _LoginScreenState extends State<LoginScreen> {
             Align(
               alignment: Alignment.centerRight,
               child: TextButton(
-                onPressed: () {},
+                onPressed: () {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text('Fitur lupa password akan segera hadir'), backgroundColor: Color(0xFFC8102E)),
+                  );
+                },
                 child: const Text('Lupa password?', style: TextStyle(color: Color(0xFFC8102E))),
               ),
             ),
@@ -95,16 +103,22 @@ class _LoginScreenState extends State<LoginScreen> {
               height: 50,
               child: ElevatedButton(
                 onPressed: _loading ? null : () async {
-                  setState(() => _loading = true);
-                  await Future.delayed(const Duration(seconds: 1));
-                  setState(() => _loading = false);
-                  if (mounted) {
-                    ScaffoldMessenger.of(context).showSnackBar(
-                      const SnackBar(content: Text('Login berhasil!'), backgroundColor: Color(0xFF1BA303)),
-                    );
-                    Navigator.pop(context);
-                  }
-                },
+                setState(() => _loading = true);
+                final auth = context.read<AuthProvider>();
+                final ok = await auth.login(_emailCtrl.text.trim(), _passCtrl.text);
+                setState(() => _loading = false);
+                if (!mounted) return;
+                if (ok) {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    const SnackBar(content: Text('Login berhasil!'), backgroundColor: Color(0xFF1BA303)),
+                  );
+                  Navigator.pop(context);
+                } else {
+                  ScaffoldMessenger.of(context).showSnackBar(
+                    SnackBar(content: Text(auth.error ?? 'Login gagal'), backgroundColor: Colors.red),
+                  );
+                }
+              },
                 style: ElevatedButton.styleFrom(
                   backgroundColor: const Color(0xFFC8102E),
                   foregroundColor: Colors.white,
@@ -132,6 +146,9 @@ class _LoginScreenState extends State<LoginScreen> {
           ],
         ),
       ),
-    );
+    ],
+  ),
+),
+);
   }
 }

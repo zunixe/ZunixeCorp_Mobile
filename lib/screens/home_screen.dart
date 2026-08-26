@@ -1,6 +1,14 @@
 import 'package:flutter/material.dart';
+import 'package:provider/provider.dart';
+import 'dart:async';
+
 import '../models/product.dart';
+import '../services/product_service.dart';
+import '../providers/auth_provider.dart';
+import '../providers/cart_provider.dart';
+import '../widgets/app_header.dart';
 import '../widgets/product_card.dart';
+import '../screens/product_detail_screen.dart';
 
 class HomeScreen extends StatefulWidget {
   const HomeScreen({super.key});
@@ -10,19 +18,35 @@ class HomeScreen extends StatefulWidget {
 }
 
 class _HomeScreenState extends State<HomeScreen> {
+  final ProductService _productService = ProductService();
+  List<Product> _products = [];
   int _bannerIndex = 0;
   int _promoSeconds = 0;
   int _promoMinutes = 0;
   int _promoHours = 0;
   int _promoDays = 0;
 
+  Timer? _timer;
+
   @override
   void initState() {
     super.initState();
-    // Set countdown to end of month
+    _loadProducts();
+    _tick();
+    _timer = Timer.periodic(const Duration(seconds: 1), (_) => _tick());
+  }
+
+  @override
+  void dispose() {
+    _timer?.cancel();
+    super.dispose();
+  }
+
+  void _tick() {
     final now = DateTime.now();
     final endOfMonth = DateTime(now.year, now.month + 1, 1).subtract(const Duration(seconds: 1));
     final diff = endOfMonth.difference(now);
+    if (diff.inSeconds < 0) return;
     setState(() {
       _promoDays = diff.inDays;
       _promoHours = diff.inHours % 24;
@@ -31,16 +55,41 @@ class _HomeScreenState extends State<HomeScreen> {
     });
   }
 
+  Future<void> _loadProducts() async {
+    try {
+      final products = await _productService.fetchProducts();
+      if (mounted) {
+        setState(() {
+          _products = products;
+        });
+      }
+    } catch (e) {
+      // Fallback to dummy products if API is unreachable.
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
+    final cart = context.watch<CartProvider>();
+    final auth = context.watch<AuthProvider>();
+
     return Scaffold(
       backgroundColor: const Color(0xFFF5F5F5),
-      drawer: _buildDrawer(),
+      drawer: _buildDrawer(auth),
       body: SafeArea(
         child: Column(
           children: [
             _buildPromoBanner(),
-            _buildHeader(),
+            AppHeader(
+              showMenu: true,
+              showSearch: true,
+              showCart: true,
+              showProfile: true,
+              cartCount: cart.itemCount,
+              onSearch: () => Navigator.pushNamed(context, '/products-full'),
+              onCart: () => Navigator.pushNamed(context, '/cart'),
+              onProfile: () => Navigator.pushNamed(context, '/login'),
+            ),
             Expanded(
               child: ListView(
                 padding: const EdgeInsets.only(bottom: 16),
@@ -49,8 +98,8 @@ class _HomeScreenState extends State<HomeScreen> {
                   _buildBannerCarousel(),
                   _buildFeaturedProduct(),
                   _buildSuperPromo(),
-                  _buildSection('Best Seller', dummyProducts.take(4).toList()),
-                  _buildSection('Produk Terbaru', dummyProducts),
+                  _buildSection('Best Seller', _products.isEmpty ? dummyProducts.take(4).toList() : _products.take(4).toList()),
+                  _buildSection('Produk Terbaru', _products.isEmpty ? dummyProducts : _products),
                   _buildHelpSection(),
                   _buildFooter(),
                 ],
@@ -62,7 +111,8 @@ class _HomeScreenState extends State<HomeScreen> {
     );
   }
 
-  Widget _buildDrawer() {
+  Widget _buildDrawer(AuthProvider auth) {
+    final user = auth.user;
     return Drawer(
       child: ListView(
         padding: EdgeInsets.zero,
@@ -71,29 +121,52 @@ class _HomeScreenState extends State<HomeScreen> {
             decoration: const BoxDecoration(
               color: Color(0xFFC8102E),
             ),
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                const CircleAvatar(
-                  radius: 30,
-                  backgroundColor: Colors.white,
-                  child: Text('Z', style: TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: Color(0xFFC8102E))),
-                ),
-                const SizedBox(height: 12),
-                const Text('zunixe', style: TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.bold)),
-                Text('Mitra Terpercaya Inovasi Elektronika Anda', style: TextStyle(color: Colors.white.withValues(alpha: 0.8), fontSize: 12)),
+              child: Column(
+                crossAxisAlignment: CrossAxisAlignment.start,
+                children: [
+                  CircleAvatar(
+                    radius: 30,
+                    backgroundColor: Colors.white,
+                    child: Text(
+                      user != null ? (user['full_name'] ?? 'Z')[0].toUpperCase() : 'Z',
+                      style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: Color(0xFFC8102E)),
+                    ),
+                  ),
+                  const SizedBox(height: 12),
+                  Text(
+                    user != null ? user['full_name'] ?? 'zunixe' : 'zunixe',
+                    style: const TextStyle(color: Colors.white, fontSize: 20, fontWeight: FontWeight.bold),
+                  ),
+                  Text(
+                    user != null ? user['email'] ?? '' : 'Mitra Terpercaya Inovasi Elektronika Anda',
+                    style: TextStyle(color: Colors.white.withValues(alpha: 0.8), fontSize: 12),
+                  ),
               ],
             ),
           ),
           ListTile(
             leading: const Icon(Icons.home, color: Color(0xFFC8102E)),
             title: const Text('Home'),
-            onTap: () => Navigator.pop(context),
+            onTap: () {
+              Navigator.pop(context);
+              setState(() {});
+            },
           ),
           ListTile(
             leading: const Icon(Icons.inventory_2, color: Color(0xFFC8102E)),
             title: const Text('Semua Produk'),
-            onTap: () => Navigator.pop(context),
+            onTap: () {
+              Navigator.pop(context);
+              Navigator.pushNamed(context, '/products-full');
+            },
+          ),
+          ListTile(
+            leading: const Icon(Icons.shopping_cart, color: Color(0xFFC8102E)),
+            title: const Text('Keranjang'),
+            onTap: () {
+              Navigator.pop(context);
+              Navigator.pushNamed(context, '/cart');
+            },
           ),
           ListTile(
             leading: const Icon(Icons.info, color: Color(0xFFC8102E)),
@@ -104,11 +177,15 @@ class _HomeScreenState extends State<HomeScreen> {
             },
           ),
           const Divider(),
-          ListTile(
-            leading: const Icon(Icons.settings, color: Color(0xFFC8102E)),
-            title: const Text('Settings'),
-            onTap: () => Navigator.pop(context),
-          ),
+          if (auth.isLoggedIn)
+            ListTile(
+              leading: const Icon(Icons.exit_to_app, color: Color(0xFFC8102E)),
+              title: const Text('Keluar'),
+              onTap: () {
+                Navigator.pop(context);
+                auth.logout();
+              },
+            ),
         ],
       ),
     );
@@ -127,67 +204,6 @@ class _HomeScreenState extends State<HomeScreen> {
           Text(
             'Get our latest products!',
             style: TextStyle(color: Colors.white, fontSize: 13, fontWeight: FontWeight.w500),
-          ),
-        ],
-      ),
-    );
-  }
-
-  Widget _buildHeader() {
-    return Container(
-      color: Colors.white,
-      padding: const EdgeInsets.symmetric(horizontal: 12, vertical: 10),
-      child: Row(
-        children: [
-          Builder(
-            builder: (context) => IconButton(
-              icon: const Icon(Icons.menu, size: 24, color: Color(0xFF3C3C3C)),
-              constraints: const BoxConstraints(minWidth: 36, minHeight: 36),
-              onPressed: () => Scaffold.of(context).openDrawer(),
-            ),
-          ),
-          const SizedBox(width: 4),
-          Image.asset(
-            'assets/1748664658288-Zunixe_Elctonicsv1_resized256-png.webp',
-            height: 36,
-            errorBuilder: (context, error, stackTrace) =>
-                const Row(
-                  children: [
-                    CircleAvatar(radius: 14, backgroundColor: Color(0xFFC8102E), child: Text('Z', style: TextStyle(color: Colors.white, fontSize: 14, fontWeight: FontWeight.bold))),
-                    SizedBox(width: 6),
-                    Text('Zunixe', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Color(0xFFC8102E))),
-                  ],
-                ),
-          ),
-          const Spacer(),
-          IconButton(
-            icon: const Icon(Icons.search, size: 22, color: Color(0xFF3C3C3C)),
-            constraints: const BoxConstraints(minWidth: 36, minHeight: 36),
-            onPressed: () {},
-          ),
-          Stack(
-            children: [
-              IconButton(
-                icon: const Icon(Icons.shopping_cart_outlined, size: 22, color: Color(0xFF3C3C3C)),
-                constraints: const BoxConstraints(minWidth: 36, minHeight: 36),
-                onPressed: () {},
-              ),
-              Positioned(
-                right: 4,
-                top: 4,
-                child: Container(
-                  padding: const EdgeInsets.all(4),
-                  decoration: const BoxDecoration(
-                    color: Color(0xFFC8102E),
-                    shape: BoxShape.circle,
-                  ),
-                  child: const Text(
-                    '1',
-                    style: TextStyle(color: Colors.white, fontSize: 10, fontWeight: FontWeight.bold),
-                  ),
-                ),
-              ),
-            ],
           ),
         ],
       ),
@@ -309,10 +325,10 @@ class _HomeScreenState extends State<HomeScreen> {
                 Text('Mulai proyek IoT Anda sekarang', style: TextStyle(fontSize: 13, color: Colors.grey[600])),
                 const SizedBox(height: 8),
                 OutlinedButton(
-                  onPressed: () {},
+                  onPressed: () => Navigator.pushNamed(context, '/products-full'),
                   style: OutlinedButton.styleFrom(
-                    foregroundColor: const Color(0xFF0C0103),
-                    side: const BorderSide(color: Color(0xFF0C0103)),
+                    foregroundColor: const Color(0xFFC8102E),
+                    side: const BorderSide(color: Color(0xFFC8102E)),
                     padding: const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                     shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
                   ),
@@ -414,7 +430,7 @@ class _HomeScreenState extends State<HomeScreen> {
                 ),
               ),
               TextButton(
-                onPressed: () {},
+                onPressed: () => Navigator.pushNamed(context, '/products-full'),
                 child: const Text('Lihat Semua', style: TextStyle(color: Color(0xFFC8102E), fontSize: 13)),
               ),
             ],
@@ -425,12 +441,15 @@ class _HomeScreenState extends State<HomeScreen> {
             physics: const NeverScrollableScrollPhysics(),
             gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
               crossAxisCount: 2,
-              childAspectRatio: 0.7,
+              childAspectRatio: 0.55,
               crossAxisSpacing: 12,
               mainAxisSpacing: 12,
             ),
             itemCount: products.length,
-            itemBuilder: (context, index) => ProductCard(product: products[index]),
+            itemBuilder: (context, index) => ProductCard(
+              product: products[index],
+              onTap: () => Navigator.push(context, MaterialPageRoute(builder: (_) => ProductDetailScreen(product: products[index]))),
+            ),
           ),
         ],
       ),
@@ -554,7 +573,11 @@ class _HomeScreenState extends State<HomeScreen> {
 
   Widget _footerLink(String text) {
     return GestureDetector(
-      onTap: () {},
+      onTap: () {
+        ScaffoldMessenger.of(context).showSnackBar(
+          SnackBar(content: Text('$text — halaman akan segera hadir'), backgroundColor: const Color(0xFFC8102E)),
+        );
+      },
       child: Text(
         text,
         style: TextStyle(color: Colors.grey[400], fontSize: 12, decoration: TextDecoration.underline),

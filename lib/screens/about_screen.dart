@@ -1,5 +1,7 @@
 import 'package:flutter/material.dart';
 
+import '../widgets/app_header.dart';
+
 class AboutScreen extends StatelessWidget {
   const AboutScreen({super.key});
 
@@ -10,7 +12,13 @@ class AboutScreen extends StatelessWidget {
       body: SafeArea(
         child: Column(
           children: [
-            _buildHeader(context),
+            const AppHeader(
+              title: 'Tentang Kami',
+              showBack: true,
+              showSearch: false,
+              showCart: false,
+              showProfile: false,
+            ),
             Expanded(
               child: ListView(
                 children: [
@@ -21,34 +29,6 @@ class AboutScreen extends StatelessWidget {
             ),
           ],
         ),
-      ),
-    );
-  }
-
-  Widget _buildHeader(BuildContext context) {
-    return Container(
-      color: Colors.white,
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
-      child: Row(
-        children: [
-          GestureDetector(
-            onTap: () => Navigator.pop(context),
-            child: const Icon(Icons.arrow_back, color: Color(0xFF3C3C3C), size: 20),
-          ),
-          const SizedBox(width: 8),
-          const Text('zunixe', style: TextStyle(fontSize: 16, fontWeight: FontWeight.bold, color: Color(0xFFC8102E))),
-          const Spacer(),
-          IconButton(
-            icon: const Icon(Icons.search, size: 20, color: Color(0xFF3C3C3C)),
-            constraints: const BoxConstraints(minWidth: 36, minHeight: 36),
-            onPressed: () {},
-          ),
-          IconButton(
-            icon: const Icon(Icons.person_outline, size: 20, color: Color(0xFF3C3C3C)),
-            constraints: const BoxConstraints(minWidth: 36, minHeight: 36),
-            onPressed: () {},
-          ),
-        ],
       ),
     );
   }

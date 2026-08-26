@@ -1,5 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
+import 'package:url_launcher/url_launcher.dart';
+
+import '../widgets/app_header.dart';
 
 class ChatScreen extends StatefulWidget {
   const ChatScreen({super.key});
@@ -30,11 +33,18 @@ class _ChatScreenState extends State<ChatScreen> {
     _msgCtrl.clear();
   }
 
-  void _openWhatsApp() {
-    Clipboard.setData(const ClipboardData(text: '6287777711056'));
-    ScaffoldMessenger.of(context).showSnackBar(
-      const SnackBar(content: Text('Nomor WhatsApp disalin: 0877-7771-1056'), backgroundColor: Color(0xFF1BA303)),
-    );
+  void _openWhatsApp() async {
+    final url = Uri.parse('https://wa.me/6287777711056');
+    if (await canLaunchUrl(url)) {
+      await launchUrl(url, mode: LaunchMode.externalApplication);
+    } else {
+      await Clipboard.setData(const ClipboardData(text: '087777711056'));
+      if (mounted) {
+        ScaffoldMessenger.of(context).showSnackBar(
+          const SnackBar(content: Text('Nomor WhatsApp disalin: 0877-7771-1056'), backgroundColor: Color(0xFF1BA303)),
+        );
+      }
+    }
   }
 
   @override
@@ -44,7 +54,25 @@ class _ChatScreenState extends State<ChatScreen> {
       body: SafeArea(
         child: Column(
           children: [
-            _buildHeader(),
+            AppHeader(
+              title: 'Zunixe Support',
+              subtitle: 'Online - Balas dalam hitungan menit',
+              leading: const CircleAvatar(
+                radius: 18,
+                backgroundColor: Color(0xFFC8102E),
+                child: Icon(Icons.headset_mic, color: Colors.white, size: 20),
+              ),
+              showSearch: false,
+              showCart: false,
+              showProfile: false,
+              trailing: [
+                IconButton(
+                  icon: const Icon(Icons.call, color: Color(0xFFC8102E), size: 22),
+                  tooltip: 'Salin nomor WhatsApp',
+                  onPressed: _openWhatsApp,
+                ),
+              ],
+            ),
             Expanded(
               child: ListView.builder(
                 padding: const EdgeInsets.all(16),
@@ -60,36 +88,6 @@ class _ChatScreenState extends State<ChatScreen> {
             _buildWhatsAppButton(),
           ],
         ),
-      ),
-    );
-  }
-
-  Widget _buildHeader() {
-    return Container(
-      color: Colors.white,
-      padding: const EdgeInsets.symmetric(horizontal: 8, vertical: 8),
-      child: Row(
-        children: [
-          const CircleAvatar(
-            radius: 18,
-            backgroundColor: Color(0xFFC8102E),
-            child: Icon(Icons.headset_mic, color: Colors.white, size: 20),
-          ),
-          const SizedBox(width: 10),
-          const Expanded(
-            child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                Text('Zunixe Support', style: TextStyle(fontSize: 15, fontWeight: FontWeight.w600, color: Color(0xFF3C3C3C))),
-                Text('Online - Balas dalam hitungan menit', style: TextStyle(fontSize: 11, color: Color(0xFF1BA303))),
-              ],
-            ),
-          ),
-          IconButton(
-            icon: const Icon(Icons.call, color: Color(0xFFC8102E), size: 22),
-            onPressed: _openWhatsApp,
-          ),
-        ],
       ),
     );
   }
