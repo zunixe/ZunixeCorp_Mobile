@@ -1,54 +1,43 @@
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
-import 'screens/main_shell.dart';
-import 'screens/about_screen.dart';
-import 'screens/products_screen.dart';
-import 'screens/product_detail_screen.dart';
-import 'screens/cart_screen.dart';
-import 'screens/login_screen.dart';
-import 'providers/auth_provider.dart';
-import 'providers/cart_provider.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:supabase_flutter/supabase_flutter.dart';
+import 'package:zunixe_corp_mobile/app/app_router.dart';
+import 'package:zunixe_corp_mobile/core/theme/app_colors.dart';
 
-void main() => runApp(const ZunixeApp());
+Future<void> main() async {
+  WidgetsFlutterBinding.ensureInitialized();
+  await Supabase.initialize(
+    url: 'https://ahafaueeukvffkdzlkuv.supabase.co',
+    publishableKey: 'sb_publishable_wu-3jDpD-Bmld79QA1Oc6w_ROc9MDuo',
+  );
+  runApp(const ProviderScope(child: ZunixeApp()));
+}
 
-class ZunixeApp extends StatelessWidget {
+class ZunixeApp extends ConsumerWidget {
   const ZunixeApp({super.key});
 
   @override
-  Widget build(BuildContext context) {
-    return MultiProvider(
-      providers: [
-        ChangeNotifierProvider(create: (_) => AuthProvider()..checkAuth()),
-        ChangeNotifierProvider(create: (_) => CartProvider()),
-      ],
-      child: MaterialApp(
-        title: 'zunixe.com',
-        debugShowCheckedModeBanner: false,
-        theme: ThemeData(
-          fontFamily: 'Ubuntu',
-          primaryColor: const Color(0xFFC8102E),
-          colorScheme: ColorScheme.fromSeed(
-            seedColor: const Color(0xFFC8102E),
-            primary: const Color(0xFFC8102E),
-          ),
-          scaffoldBackgroundColor: const Color(0xFFF5F5F5),
-          appBarTheme: const AppBarTheme(
-            backgroundColor: Colors.white,
-            foregroundColor: Color(0xFF3C3C3C),
-            elevation: 0,
-          ),
-          useMaterial3: true,
+  Widget build(BuildContext context, WidgetRef ref) {
+    final router = ref.watch(appRouterProvider);
+    return MaterialApp.router(
+      title: 'zunixe.com',
+      debugShowCheckedModeBanner: false,
+      theme: ThemeData(
+        fontFamily: 'Ubuntu',
+        primaryColor: AppColors.brand,
+        colorScheme: ColorScheme.fromSeed(
+          seedColor: AppColors.brand,
+          primary: AppColors.brand,
         ),
-        initialRoute: '/',
-        routes: {
-          '/': (context) => const MainShell(),
-          '/about': (context) => const AboutScreen(),
-          '/products-full': (context) => const ProductsScreen(isTab: false),
-          '/product-detail': (context) => const ProductDetailScreen(),
-          '/cart': (context) => CartScreen(onSwitchToProduk: () => Navigator.pop(context)),
-          '/login': (context) => const LoginScreen(),
-        },
+        scaffoldBackgroundColor: AppColors.background,
+        appBarTheme: const AppBarTheme(
+          backgroundColor: Colors.white,
+          foregroundColor: AppColors.ink,
+          elevation: 0,
+        ),
+        useMaterial3: true,
       ),
+      routerConfig: router,
     );
   }
 }
