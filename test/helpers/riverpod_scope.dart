@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:flutter_test/flutter_test.dart';
+import 'package:go_router/go_router.dart';
 import 'package:mocktail/mocktail.dart';
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:zunixe_corp_mobile/core/result.dart';
@@ -78,11 +79,20 @@ Future<void> pumpRiverpod(
   );
 }
 
+/// Hasil [pumpRouter]: container provider + router go_router.
+class RouterHarness {
+  const RouterHarness(this.container, this.router);
+
+  final ProviderContainer container;
+  final GoRouter router;
+}
+
 /// Pump aplikasi dengan router nyata (go_router) + override repository.
 ///
 /// [initialLocation] dinavigasikan setelah frame pertama. Mengembalikan
-/// container agar test bisa memicu aksi lanjutan (mis. `container.read`).
-Future<ProviderContainer> pumpRouter(
+/// harness (container + router) agar test bisa memicu aksi lanjutan
+/// (mis. `harness.router.push(...)`, `harness.container.read(...)`).
+Future<RouterHarness> pumpRouter(
   WidgetTester tester, {
   MockAuthRepository? authRepo,
   MockCartRepository? cartRepo,
@@ -116,5 +126,5 @@ Future<ProviderContainer> pumpRouter(
     await tester.pump();
     await tester.pump();
   }
-  return container;
+  return RouterHarness(container, router);
 }

@@ -309,15 +309,19 @@ class _ProductDetailScreenState extends ConsumerState<ProductDetailScreen> {
         ),
       ),
       bottomNavigationBar: Container(
-        padding: const EdgeInsets.fromLTRB(16, 12, 16, 32),
+        // SafeArea bawah agar tombol tak tertutup gesture/navigation bar Android.
+        padding: const EdgeInsets.fromLTRB(16, 12, 16, 12),
         decoration: const BoxDecoration(
           color: Colors.white,
           border: Border(top: BorderSide(color: AppColors.border)),
         ),
-        child: AddToCartButton(
-          product: p,
-          imageUrl: currentImg,
-          label: 'Tambah ke Keranjang',
+        child: SafeArea(
+          top: false,
+          child: AddToCartButton(
+            product: p,
+            imageUrl: currentImg,
+            label: 'Tambah ke Keranjang',
+          ),
         ),
       ),
     );

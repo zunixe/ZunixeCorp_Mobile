@@ -1,11 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:zunixe_corp_mobile/core/config/store.dart';
 import 'package:zunixe_corp_mobile/core/theme/app_colors.dart';
 
 /// Section FAQ "Tanya Kami" di home.
 class HelpSection extends StatelessWidget {
   const HelpSection({super.key});
 
-  static const _items = [
+  static final _items = [
     (
       'Mengapa membeli dari Kami',
       Icons.verified,
@@ -24,7 +25,7 @@ class HelpSection extends StatelessWidget {
     (
       'Hubungi Dukungan',
       Icons.headset_mic,
-      'Tim support kami siap membantu Anda:\n\nWhatsApp: 0877-7771-1056\nEmail: support@zunixe.com\nAlamat: Jl. Mukodar Tengah No. 247, Cibeureum, Cimahi 40535\n\nJam operasional: Senin - Sabtu, 08:00 - 17:00 WIB',
+      'Tim support kami siap membantu Anda:\n\nWhatsApp: ${StoreConfig.waDisplay}\nEmail: support@zunixe.com\nAlamat: Jl. Mukodar Tengah No. 247, Cibeureum, Cimahi 40535\n\nJam operasional: Senin - Sabtu, 08:00 - 17:00 WIB',
     ),
     (
       'Tips Keamanan Akun',

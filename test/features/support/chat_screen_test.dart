@@ -31,35 +31,34 @@ void main() {
     );
   }
 
-  testWidgets('pesan sambutan tampil', (tester) async {
+  testWidgets('intro support + field pesan tampil', (tester) async {
     await pump(tester);
-    expect(find.text('Halo! Selamat datang di Zunixe Store.'), findsOneWidget);
-    expect(find.text('Ada yang bisa kami bantu?'), findsOneWidget);
-    expect(find.text('Ketik pesan...'), findsOneWidget);
+    expect(find.text('Zunixe Support'), findsOneWidget);
+    expect(find.text('Butuh bantuan?'), findsOneWidget);
+    expect(find.textContaining('Senin – Sabtu'), findsOneWidget);
+    expect(find.text('Ketik pesan…'), findsOneWidget);
   });
 
-  testWidgets('kirim pesan -> bubble kanan + auto-reply 2 detik', (tester) async {
+  testWidgets('kirim pesan -> buka WhatsApp dengan teks terisi',
+      (tester) async {
     await pump(tester);
     await tester.enterText(
-        find.widgetWithText(TextField, 'Ketik pesan...'), 'Halo admin');
+        find.widgetWithText(TextField, 'Ketik pesan…'), 'Halo admin');
     await tester.tap(find.byIcon(Icons.send));
     await tester.pump();
-    expect(find.text('Halo admin'), findsOneWidget);
-
-    // Auto-reply datang setelah 2 detik.
-    await tester.pump(const Duration(seconds: 2));
-    expect(find.textContaining('Terima kasih! Pesan Anda tercatat'),
-        findsOneWidget);
+    expect(urlLauncher.launched, hasLength(1));
+    final launched = urlLauncher.launched.single;
+    expect(launched, startsWith('https://wa.me/6287777711056?text='));
+    expect(Uri.decodeComponent(launched), contains('Halo admin'));
   });
 
-  testWidgets('pesan kosong tidak terkirim', (tester) async {
+  testWidgets('pesan kosong -> buka WhatsApp tanpa teks', (tester) async {
     await pump(tester);
     await tester.enterText(
-        find.widgetWithText(TextField, 'Ketik pesan...'), '   ');
+        find.widgetWithText(TextField, 'Ketik pesan…'), '   ');
     await tester.tap(find.byIcon(Icons.send));
     await tester.pump();
-    // Hanya 2 pesan awal.
-    expect(find.text('Halo admin'), findsNothing);
+    expect(urlLauncher.launched.single, 'https://wa.me/6287777711056');
   });
 
   testWidgets('tap tombol WA hijau -> buka wa.me', (tester) async {
@@ -69,9 +68,10 @@ void main() {
     expect(urlLauncher.launched.single, 'https://wa.me/6287777711056');
   });
 
-  testWidgets('waktu tampil format HH:MM', (tester) async {
+  testWidgets('tidak ada riwayat chat palsu (jujur)', (tester) async {
     await pump(tester);
-    // Setiap bubble punya timestamp dua digit.
-    expect(find.textContaining(RegExp(r'^\d{2}:\d{2}$')), findsWidgets);
+    expect(find.textContaining('Terima kasih! Pesan Anda tercatat'),
+        findsNothing);
+    expect(find.textContaining('tidak menyimpan riwayat chat'), findsOneWidget);
   });
 }

@@ -69,7 +69,7 @@ void main() {
   }
 
   /// Pump via router nyata (untuk aksi yang memicu navigasi).
-  Future<ProviderContainer> pumpWithRouter(
+  Future<RouterHarness> pumpWithRouter(
     WidgetTester tester, {
     MockAuthRepository? authRepo,
     MockCartRepository? cartRepo,

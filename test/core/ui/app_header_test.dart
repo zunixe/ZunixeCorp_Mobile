@@ -18,6 +18,7 @@ void main() {
     VoidCallback? onCart,
     VoidCallback? onProfile,
     List<Widget>? trailing,
+    Widget? leading,
   }) {
     return tester.pumpWidget(
       MaterialApp(
@@ -25,6 +26,7 @@ void main() {
           body: AppHeader(
             title: title,
             subtitle: subtitle,
+            leading: leading,
             showBack: showBack,
             onBack: onBack,
             showMenu: showMenu,
@@ -112,5 +114,20 @@ void main() {
         showProfile: false,
         trailing: [const Icon(Icons.call)]);
     expect(find.byIcon(Icons.call), findsOneWidget);
+  });
+
+  testWidgets('leading custom tetap menampilkan title + subtitle',
+      (tester) async {
+    await pump(
+      tester,
+      title: 'Zunixe Support',
+      subtitle: 'Balasan di WhatsApp',
+      leading: const Icon(Icons.headset_mic),
+      showSearch: false,
+      showCart: false,
+      showProfile: false,
+    );
+    expect(find.text('Zunixe Support'), findsOneWidget);
+    expect(find.text('Balasan di WhatsApp'), findsOneWidget);
   });
 }

@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:zunixe_corp_mobile/core/config/store.dart';
 import 'package:zunixe_corp_mobile/core/ui/app_header.dart';
 
 /// Halaman teks statis untuk tautan legal footer.
@@ -6,7 +7,7 @@ class LegalScreen extends StatelessWidget {
   final String slug;
   const LegalScreen({super.key, required this.slug});
 
-  static const _pages = <String, Map<String, String>>{
+  static final _pages = <String, Map<String, String>>{
     'tos': {
       'title': 'Persyaratan Layanan',
       'body': 'Dengan menggunakan aplikasi Zunixe Store, Anda menyetujui:\n\n'
@@ -22,7 +23,7 @@ class LegalScreen extends StatelessWidget {
           'hanya untuk memproses pesanan dan layanan pelanggan.\n\n'
           'Data tidak dibagikan ke pihak ketiga kecuali jasa pengiriman untuk '
           'keperluan pengantaran. Anda dapat meminta penghapusan data via '
-          'WhatsApp 0877-7771-1056.',
+          'WhatsApp ${StoreConfig.waDisplay}.',
     },
     'shipping': {
       'title': 'Kebijakan Pengiriman',
@@ -34,7 +35,7 @@ class LegalScreen extends StatelessWidget {
       'title': 'Kebijakan Pengembalian',
       'body': 'Barang rusak/salah kirim dapat ditukar maksimal 3 hari setelah '
           'diterima (wajib video unboxing).\n\n'
-          'Hubungi WhatsApp 0877-7771-1056 dengan nomor pesanan dan bukti foto/video. '
+          'Hubungi WhatsApp ${StoreConfig.waDisplay} dengan nomor pesanan dan bukti foto/video. '
           'Dana dikembalikan via transfer setelah barang retur kami terima.',
     },
     'ip': {

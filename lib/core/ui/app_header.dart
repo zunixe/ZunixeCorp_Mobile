@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
 
 import 'zunixe_logo.dart';
 import 'package:zunixe_corp_mobile/core/theme/app_colors.dart';
@@ -43,6 +44,17 @@ class AppHeader extends StatelessWidget {
     return const ZunixeLogo(size: 30);
   }
 
+  /// Back yang andal untuk go_router: utamakan `context.pop()` (menghormati
+  /// tumpukan router), fallback ke `Navigator.maybePop` bila tak bisa pop.
+  void _handleBack(BuildContext context) {
+    final router = GoRouter.maybeOf(context);
+    if (router != null && router.canPop()) {
+      context.pop();
+      return;
+    }
+    Navigator.maybePop(context);
+  }
+
   Widget _buildLeading(BuildContext context) {
     if (showMenu) {
       return Builder(
@@ -59,7 +71,7 @@ class AppHeader extends StatelessWidget {
         icon: const Icon(Icons.arrow_back, size: 22, color: AppColors.ink),
         constraints: const BoxConstraints(minWidth: 40, minHeight: 40),
         tooltip: 'Kembali',
-        onPressed: onBack ?? () => Navigator.maybePop(context),
+        onPressed: onBack ?? () => _handleBack(context),
       );
     }
     return leading ?? _defaultLeading();
@@ -118,7 +130,9 @@ class AppHeader extends StatelessWidget {
         children: [
           _buildLeading(context),
           const SizedBox(width: 8),
-          if (title.isNotEmpty && !showBack && !showMenu && leading == null)
+          // Judul tampil jika tidak ada tombol back/menu. Leading custom
+          // (mis. ikon support) TIDAK menekan judul — hanya mengganti logo.
+          if (title.isNotEmpty && !showBack && !showMenu)
             Expanded(
               child: Column(
                 mainAxisSize: MainAxisSize.min,

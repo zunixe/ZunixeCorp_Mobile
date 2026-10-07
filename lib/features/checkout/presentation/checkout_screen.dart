@@ -272,13 +272,17 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
       ),
       bottomNavigationBar: Container(
         color: Colors.white,
-        padding: const EdgeInsets.fromLTRB(16, 12, 16, 32),
-        child: GradientButton(
-          label: 'Buat Pesanan - ${formatRupiah(cart.totalPrice)}',
-          height: 50,
-          fontSize: 16,
-          loading: _submitting,
-          onPressed: (cart.items.isEmpty || _submitting) ? null : _submit,
+        // SafeArea bawah agar tombol tak tertutup gesture/navigation bar Android.
+        padding: const EdgeInsets.fromLTRB(16, 12, 16, 12),
+        child: SafeArea(
+          top: false,
+          child: GradientButton(
+            label: 'Buat Pesanan - ${formatRupiah(cart.totalPrice)}',
+            height: 50,
+            fontSize: 16,
+            loading: _submitting,
+            onPressed: (cart.items.isEmpty || _submitting) ? null : _submit,
+          ),
         ),
       ),
     );

@@ -100,7 +100,7 @@ class AboutScreen extends StatelessWidget {
           const SizedBox(height: 8),
           _buildContactItem(Icons.location_on, 'Alamat:', 'Jl. Mukodar Tengah No. 247, RT 05 RW 07, Cibeureum, Cimahi 40535',
               onTap: () => _openMap()),
-          _buildContactItem(Icons.chat, 'WhatsApp:', '0877-7771-1056',
+          _buildContactItem(Icons.chat, 'WhatsApp:', StoreConfig.waDisplay,
               onTap: () => _openWa()),
         ],
       ),
