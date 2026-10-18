@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="zunixe_background">#FFF5F5F5</color>
+    <color name="zunixe_surface">#FFFFFFFF</color>
+    <color name="zunixe_brand">#FFC8102E</color>
+</resources>
