@@ -5,11 +5,12 @@ import 'package:supabase_flutter/supabase_flutter.dart';
 
 /// Rekaman satu pemanggilan method pada builder palsu.
 class RecordedCall {
-  RecordedCall(this.method, this.args);
+  RecordedCall(this.method, this.args, [this.named = const {}]);
   final String method;
   final List<Object?> args;
+  final Map<Symbol, Object?> named;
   @override
-  String toString() => '$method($args)';
+  String toString() => '$method($args, $named)';
 }
 
 /// Builder filter palsu yang dapat di-await.
@@ -70,7 +71,7 @@ class FakeFilterBuilder<T> extends Fake
         .toString()
         .replaceFirst('Symbol("', '')
         .replaceAll('")', '');
-    calls.add(RecordedCall(name, invocation.positionalArguments.toList()));
+    calls.add(RecordedCall(name, invocation.positionalArguments.toList(), invocation.namedArguments));
     if (invocation.isMethod) {
       // maybeSingle/single mengubah tipe hasil menjadi satu baris
       // (PostgrestMap?) — kembalikan filter baru bertipe sesuai agar cast
@@ -113,7 +114,7 @@ class FakeQueryBuilder implements SupabaseQueryBuilder {
         .toString()
         .replaceFirst('Symbol("', '')
         .replaceAll('")', '');
-    calls.add(RecordedCall(name, invocation.positionalArguments.toList()));
+    calls.add(RecordedCall(name, invocation.positionalArguments.toList(), invocation.namedArguments));
     return filter;
   }
 }

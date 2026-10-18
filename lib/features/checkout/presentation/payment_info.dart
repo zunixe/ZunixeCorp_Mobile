@@ -11,11 +11,21 @@ class PaymentInfo extends StatelessWidget {
   final String orderCode;
   final int total;
 
+  /// Data rekening; default dari [StoreConfig] (kosong = sembunyikan bank).
+  final String bankName;
+  final String accountNumber;
+  final String accountHolder;
+
   const PaymentInfo({
     super.key,
     required this.orderCode,
     required this.total,
+    this.bankName = StoreConfig.bankName,
+    this.accountNumber = StoreConfig.accountNumber,
+    this.accountHolder = StoreConfig.accountHolder,
   });
+
+  bool get _hasBank => bankName.isNotEmpty && accountNumber.isNotEmpty;
 
   Future<void> _copy(BuildContext context, String text, String label) async {
     await Clipboard.setData(ClipboardData(text: text));
@@ -68,7 +78,7 @@ class PaymentInfo extends StatelessWidget {
             style: const TextStyle(fontSize: 13),
           ),
           const SizedBox(height: 8),
-          if (StoreConfig.hasBank)
+          if (_hasBank)
             Container(
               padding: const EdgeInsets.all(12),
               decoration: BoxDecoration(
@@ -81,24 +91,24 @@ class PaymentInfo extends StatelessWidget {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
-                        const Text(StoreConfig.bankName,
-                            style: TextStyle(
+                        Text(bankName,
+                            style: const TextStyle(
                                 fontSize: 13, fontWeight: FontWeight.w600)),
                         const SizedBox(height: 2),
-                        const Text(StoreConfig.accountNumber,
-                            style: TextStyle(
+                        Text(accountNumber,
+                            style: const TextStyle(
                                 fontSize: 16,
                                 fontWeight: FontWeight.bold,
                                 letterSpacing: 1)),
-                        Text('a.n. ${StoreConfig.accountHolder}',
+                        Text('a.n. $accountHolder',
                             style: TextStyle(
                                 fontSize: 12, color: Colors.grey[600])),
                       ],
                     ),
                   ),
                   TextButton.icon(
-                    onPressed: () => _copy(context,
-                        StoreConfig.accountNumber, 'No. rekening'),
+                    onPressed: () =>
+                        _copy(context, accountNumber, 'No. rekening'),
                     icon: const Icon(Icons.copy,
                         size: 16, color: AppColors.brand),
                     label: const Text('Salin',

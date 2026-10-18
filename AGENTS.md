@@ -117,3 +117,32 @@ Good: "Fixed the login redirect. PR: https://..."
 Bad: "1. Read the issue 2. Found the bug in auth.go 3. Created branch 4. ..."
 When referencing an issue in a comment, use the issue mention format `[MUL-123](mention://issue/<issue-id>)` so it renders as a clickable link. (Issue mentions have no side effect; only member/agent mentions do — see the Mentions section above.)
 <!-- END MULTICA-RUNTIME -->
+
+<!-- BEGIN ZUNIXE-WORKFLOW (project-managed) -->
+# Workflow Branch & Rilis (Zunixe Mobile)
+
+Proyek ini adalah aplikasi **Flutter**. Aturan branch:
+
+- **`develop-flutter`** — branch kerja harian. Semua fitur, perbaikan, dan test
+  ditulis dan di-commit di sini.
+- **`main`** — branch rilis. Hanya menerima merge dari `develop-flutter`.
+- **`native-android`** — arsip rewrite native (Kotlin/Compose). Jangan
+  dikembangkan; hanya untuk referensi.
+
+Alur rilis ke Google Play:
+
+1. Kembangkan & uji di `develop-flutter` (`flutter analyze`, `flutter test --coverage`).
+2. Naikkan `version:` di `pubspec.yaml` (buildNumber selalu naik).
+3. Merge `develop-flutter` → `main`.
+4. Build artefak **dari commit `main`** (`flutter build appbundle --release`) lalu unggah.
+
+Detail: [docs/RELEASE.md](docs/RELEASE.md). Ringkasan: [README.md](README.md).
+
+## Verifikasi wajib sebelum menandai selesai
+
+```bash
+flutter analyze            # harus 0 issue
+flutter test --coverage    # seluruh test hijau
+lcov --summary coverage/lcov.info   # coverage baris >= 80%
+```
+<!-- END ZUNIXE-WORKFLOW -->

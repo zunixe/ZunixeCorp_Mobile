@@ -86,10 +86,12 @@ class _SocialAuthButtonsState extends ConsumerState<SocialAuthButtons> {
   Widget build(BuildContext context) {
     // Gagal tukar OAuth code (mis. email FB tak terbaca) datang sebagai
     // stream error → reset spinner + tampilkan pesan, jangan muter terus.
+    // StreamProvider menyerahkan error sebagai `AsyncError` (bukan callback
+    // `onError`), jadi periksa `next.hasError`.
     ref.listen(authEventsProvider, (_, next) {
-      next.whenData((_) {});
-    }, onError: (Object e, _) {
+      if (!next.hasError) return;
       if (!mounted || _pending == null) return;
+      final e = next.error;
       _fail(_pending == 'google' ? 'Google' : 'Facebook',
           e is AuthException ? e.message : 'coba lagi.');
     });

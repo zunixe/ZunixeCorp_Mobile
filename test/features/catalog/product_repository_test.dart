@@ -89,5 +89,115 @@ void main() {
       expect(res.isOk, isTrue);
       expect(res.value!.price, 5000);
     });
+
+    test('getProductById error -> Ok(null) (ditelan)', () async {
+      final client = MockSupabaseTestClient();
+      client.stubFrom('products', throws: Exception('net'));
+      final repo = ProductRepositorySupabase(client: client);
+
+      final res = await repo.getProductById('p1');
+
+      expect(res.isOk, isTrue);
+      expect(res.value, isNull);
+    });
+
+    test('getCategories error -> NetworkFailure berpesan ID', () async {
+      final client = MockSupabaseTestClient();
+      client.stubFrom('products', throws: Exception('net'));
+      final repo = ProductRepositorySupabase(client: client);
+
+      final res = await repo.getCategories();
+
+      expect(res.isErr, isTrue);
+      expect(res.failure, isA<NetworkFailure>());
+      expect(res.failure.message, 'Gagal memuat kategori. Periksa koneksi.');
+    });
+
+    test('search kosong -> tanpa filter ilike', () async {
+      final client = MockSupabaseTestClient();
+      final fb = client.stubFrom('products', returning: <Map<String, dynamic>>[]);
+      final repo = ProductRepositorySupabase(client: client);
+
+      await repo.getProducts(search: '   ');
+
+      expect(fb.wasCalled('ilike'), isFalse);
+    });
+
+    test('search terisi -> ilike name + escape wildcard', () async {
+      final client = MockSupabaseTestClient();
+      final fb = client.stubFrom('products', returning: <Map<String, dynamic>>[]);
+      final repo = ProductRepositorySupabase(client: client);
+
+      await repo.getProducts(search: '10%_x');
+
+      expect(fb.wasCalled('ilike'), isTrue);
+      expect(fb.argOf('ilike'), 'name');
+      final pattern = fb.calls
+          .firstWhere((c) => c.method == 'ilike')
+          .args
+          .last as String;
+      expect(pattern, r'%10\%\_x%');
+    });
+
+    test('category terisi -> filter eq category', () async {
+      final client = MockSupabaseTestClient();
+      final fb = client.stubFrom('products', returning: <Map<String, dynamic>>[]);
+      final repo = ProductRepositorySupabase(client: client);
+
+      await repo.getProducts(category: 'Sensor');
+
+      final eqArgs = fb.calls
+          .where((c) => c.method == 'eq')
+          .map((c) => c.args.first)
+          .toList();
+      expect(eqArgs, containsAll(['is_active', 'category']));
+    });
+
+    test('sort cheapest -> order price ascending', () async {
+      final client = MockSupabaseTestClient();
+      final fb = client.stubFrom('products', returning: <Map<String, dynamic>>[]);
+      final repo = ProductRepositorySupabase(client: client);
+
+      await repo.getProducts(sort: ProductSort.cheapest);
+
+      final order = fb.calls.firstWhere((c) => c.method == 'order');
+      expect(order.args.first, 'price');
+      expect(order.named[#ascending], isTrue);
+    });
+
+    test('sort priciest -> order price descending', () async {
+      final client = MockSupabaseTestClient();
+      final fb = client.stubFrom('products', returning: <Map<String, dynamic>>[]);
+      final repo = ProductRepositorySupabase(client: client);
+
+      await repo.getProducts(sort: ProductSort.priciest);
+
+      final order = fb.calls.firstWhere((c) => c.method == 'order');
+      expect(order.args.first, 'price');
+      expect(order.named[#ascending], isFalse);
+    });
+
+    test('sort newest -> order updated_at descending', () async {
+      final client = MockSupabaseTestClient();
+      final fb = client.stubFrom('products', returning: <Map<String, dynamic>>[]);
+      final repo = ProductRepositorySupabase(client: client);
+
+      await repo.getProducts(sort: ProductSort.newest);
+
+      final order = fb.calls.firstWhere((c) => c.method == 'order');
+      expect(order.args.first, 'updated_at');
+      expect(order.named[#ascending], isFalse);
+    });
+
+    test('range memakai offset + limit', () async {
+      final client = MockSupabaseTestClient();
+      final fb = client.stubFrom('products', returning: <Map<String, dynamic>>[]);
+      final repo = ProductRepositorySupabase(client: client);
+
+      await repo.getProducts(offset: 10, limit: 5);
+
+      final range = fb.calls.firstWhere((c) => c.method == 'range');
+      expect(range.args, [10, 14]);
+    });
   });
 }

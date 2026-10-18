@@ -1,4 +1,5 @@
 import 'package:flutter/material.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import '../../helpers/url_launcher_mock.dart';
@@ -8,9 +9,25 @@ void main() {
   TestWidgetsFlutterBinding.ensureInitialized();
 
   late UrlLauncherMock urlLauncher;
+  final clip = <String?>[];
 
-  setUp(() => urlLauncher = UrlLauncherMock()..install());
-  tearDown(() => urlLauncher.uninstall());
+  setUp(() {
+    urlLauncher = UrlLauncherMock()..install();
+    clip.clear();
+    TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
+        .setMockMethodCallHandler(SystemChannels.platform, (call) async {
+      if (call.method == 'Clipboard.setData') {
+        clip.add((call.arguments as Map)['text']?.toString());
+      }
+      return null;
+    });
+  });
+
+  tearDown(() {
+    urlLauncher.uninstall();
+    TestDefaultBinaryMessengerBinding.instance.defaultBinaryMessenger
+        .setMockMethodCallHandler(SystemChannels.platform, null);
+  });
 
   Future<void> pump(WidgetTester tester,
       {String orderCode = 'INV-1', int total = 1250500}) {
@@ -67,5 +84,71 @@ void main() {
     await tester.pump();
     // canLaunchUrl false -> snackbar merah.
     expect(find.text('Tidak dapat membuka WhatsApp'), findsOneWidget);
+  });
+
+  group('dengan data bank', () {
+    Future<void> pumpBank(WidgetTester tester) {
+      return tester.pumpWidget(
+        const MaterialApp(
+          home: Scaffold(
+            body: PaymentInfo(
+              orderCode: 'INV-9',
+              total: 100000,
+              bankName: 'BCA',
+              accountNumber: '1234567890',
+              accountHolder: 'Budi Santoso',
+            ),
+          ),
+        ),
+      );
+    }
+
+    testWidgets('menampilkan bank + nomor + a.n. + tombol Salin',
+        (tester) async {
+      await pumpBank(tester);
+
+      expect(find.text('BCA'), findsOneWidget);
+      expect(find.text('1234567890'), findsOneWidget);
+      expect(find.text('a.n. Budi Santoso'), findsOneWidget);
+      expect(find.text('Salin'), findsOneWidget);
+      // Bagian "hubungi WA" tersembunyi saat bank tersedia.
+      expect(
+        find.text('Hubungi WhatsApp 0877-7771-1056 untuk nomor rekening.'),
+        findsNothing,
+      );
+    });
+
+    testWidgets('tap Salin -> snackbar konfirmasi', (tester) async {
+      await pumpBank(tester);
+
+      await tester.tap(find.text('Salin'));
+      await tester.pump();
+      await tester.pump();
+
+      expect(find.text('No. rekening disalin'), findsOneWidget);
+      expect(clip, contains('1234567890'));
+    });
+
+    testWidgets('nomor kosong -> sembunyikan blok bank', (tester) async {
+      await tester.pumpWidget(
+        const MaterialApp(
+          home: Scaffold(
+            body: PaymentInfo(
+              orderCode: 'INV-9',
+              total: 100000,
+              bankName: 'BCA',
+              accountNumber: '',
+              accountHolder: 'Budi',
+            ),
+          ),
+        ),
+      );
+
+      expect(find.text('Salin'), findsNothing);
+      expect(
+        find.text('Hubungi WhatsApp 0877-7771-1056 untuk nomor rekening.'),
+        findsOneWidget,
+      );
+    });
   });
 }

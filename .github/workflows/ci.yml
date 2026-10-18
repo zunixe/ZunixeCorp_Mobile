@@ -1,0 +1,50 @@
+name: CI
+
+on:
+  push:
+    branches: [main, develop-flutter]
+  pull_request:
+    branches: [main, develop-flutter]
+
+jobs:
+  analyze-and-test:
+    name: Analyze, test & coverage
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          cache: true
+
+      - name: Install dependencies
+        run: flutter pub get
+
+      - name: Analyze (fail on any issue)
+        run: flutter analyze --fatal-infos --fatal-warnings
+
+      - name: Run tests with coverage
+        run: flutter test --coverage
+
+      - name: Install lcov
+        run: sudo apt-get update && sudo apt-get install -y lcov
+
+      - name: Enforce coverage threshold (>= 80%)
+        run: |
+          lcov --summary coverage/lcov.info
+          PCT=$(lcov --summary coverage/lcov.info 2>&1 \
+            | awk '/lines/ { gsub(/%/,""); print $2 }')
+          echo "Line coverage: ${PCT}%"
+          awk -v p="$PCT" 'BEGIN { if (p+0 < 80) { print "Coverage " p "% < 80%"; exit 1 } }'
+
+      - name: Upload coverage artifact
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: coverage-lcov
+          path: coverage/lcov.info
+          if-no-files-found: warn
