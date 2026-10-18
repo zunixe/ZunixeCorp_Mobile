@@ -21,7 +21,14 @@ sealed class Failure(message: String) : Exception(message) {
                 ?: e.toString()
                     .removePrefix("Exception: ")
                     .removePrefix("Function call error: ")
-                    .takeIf { it.isNotBlank() && it != "null" }
+                    .takeIf {
+                        it.isNotBlank() &&
+                            it != "null" &&
+                            // Exception tanpa pesan: toString() = nama class.
+                            !it.startsWith("java.") &&
+                            !it.startsWith("kotlin.") &&
+                            !it.equals(e.javaClass.simpleName, ignoreCase = true)
+                    }
 
             if (raw == null) return Unknown(fallback)
 

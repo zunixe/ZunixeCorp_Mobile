@@ -80,6 +80,7 @@ fun AddToCartButton(
     var done by remember { mutableStateOf(false) }
     val scope = rememberCoroutineScope()
     val haptics = LocalHapticFeedback.current
+    val interactionSource = remember { MutableInteractionSource() }
 
     if (product.stock <= 0) {
         OutOfStock(compact = compact, expand = expand, modifier = modifier)
@@ -97,7 +98,7 @@ fun AddToCartButton(
             .background(if (done) SuccessGradient else BrandGradient)
             .clickable(
                 enabled = !busy,
-                interactionSource = MutableInteractionSource(),
+                interactionSource = interactionSource,
                 indication = null,
             ) {
                 scope.launch {
