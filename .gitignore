@@ -5,3 +5,5 @@
 build/
 .idea/
 *.iml
+supabase/.env.local
+supabase/CONFIG.md

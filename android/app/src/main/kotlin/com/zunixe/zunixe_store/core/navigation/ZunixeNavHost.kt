@@ -1,6 +1,7 @@
 package com.zunixe.zunixe_store.core.navigation
 
 import androidx.compose.runtime.Composable
+import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.collectAsState
 import androidx.compose.runtime.getValue
 import androidx.hilt.navigation.compose.hiltViewModel
@@ -38,6 +39,14 @@ fun ZunixeNavHost(
 ) {
     val auth by authViewModel.state.collectAsState()
     val cart by cartViewModel.state.collectAsState()
+
+    // Tambah ke keranjang saat belum login → arahkan ke halaman login.
+    LaunchedEffect(cart.needsLogin) {
+        if (cart.needsLogin) {
+            cartViewModel.clearNeedsLogin()
+            navController.navigate(Routes.LOGIN)
+        }
+    }
 
     // Buttons utk menambah ke keranjang (dipakai di katalog & detail).
     val addToCart: @Composable (com.zunixe.zunixe_store.feature.catalog.domain.Product) -> Unit = { product ->

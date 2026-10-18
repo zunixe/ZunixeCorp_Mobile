@@ -134,4 +134,11 @@ class CartViewModel @Inject constructor(
     fun clearError() {
         _state.value = _state.value.copy(error = null)
     }
+
+    /** Reset flag permintaan login setelah ditindaklanjuti UI. */
+    fun clearNeedsLogin() {
+        if (_state.value.needsLogin) {
+            _state.value = _state.value.copy(needsLogin = false)
+        }
+    }
 }

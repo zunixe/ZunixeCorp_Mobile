@@ -9,6 +9,7 @@ import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.Spacer
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
+import androidx.compose.foundation.layout.navigationBarsPadding
 import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.layout.size
@@ -71,7 +72,12 @@ fun ProductDetailScreen(
         bottomBar = {
             state.product?.let { product ->
                 Surface(color = Color.White, shadowElevation = 8.dp) {
-                    Box(Modifier.fillMaxWidth().padding(16.dp)) {
+                    Box(
+                        Modifier
+                            .fillMaxWidth()
+                            .navigationBarsPadding()
+                            .padding(16.dp),
+                    ) {
                         addButton(product)
                     }
                 }
