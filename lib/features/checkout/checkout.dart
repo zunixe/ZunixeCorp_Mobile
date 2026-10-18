@@ -4,4 +4,4 @@ library;
 
 export 'presentation/checkout_screen.dart';
 export 'presentation/order_success_screen.dart';
-export 'presentation/payment_info.dart';
+export 'presentation/checkout_module.dart';

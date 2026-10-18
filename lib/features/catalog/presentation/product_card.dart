@@ -109,7 +109,13 @@ class ProductCard extends StatelessWidget {
                   const SizedBox(height: 8),
                   SizedBox(
                     width: double.infinity,
-                    child: AddToCartButton(product: product, compact: true, expand: true),
+                    child: AddToCartButton(
+                      productId: product.id,
+                      productName: product.name,
+                      stock: product.stock,
+                      compact: true,
+                      expand: true,
+                    ),
                   ),
                 ],
               ),

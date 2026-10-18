@@ -318,8 +318,9 @@ class _ProductDetailScreenState extends ConsumerState<ProductDetailScreen> {
         child: SafeArea(
           top: false,
           child: AddToCartButton(
-            product: p,
-            imageUrl: currentImg,
+            productId: p.id,
+            productName: p.name,
+            stock: p.stock,
             label: 'Tambah ke Keranjang',
           ),
         ),

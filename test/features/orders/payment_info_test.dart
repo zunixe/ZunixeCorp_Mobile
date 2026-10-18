@@ -3,7 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:flutter_test/flutter_test.dart';
 
 import '../../helpers/url_launcher_mock.dart';
-import 'package:zunixe_corp_mobile/features/checkout/checkout.dart';
+import 'package:zunixe_corp_mobile/features/orders/orders.dart';
 
 void main() {
   TestWidgetsFlutterBinding.ensureInitialized();

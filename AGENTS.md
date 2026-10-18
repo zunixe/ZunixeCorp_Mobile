@@ -141,8 +141,9 @@ Detail: [docs/RELEASE.md](docs/RELEASE.md). Ringkasan: [README.md](README.md).
 ## Verifikasi wajib sebelum menandai selesai
 
 ```bash
-flutter analyze            # harus 0 issue
-flutter test --coverage    # seluruh test hijau
-lcov --summary coverage/lcov.info   # coverage baris >= 80%
+dart run tool/check_imports.dart    # batas modul harus lolos
+flutter analyze                     # harus 0 issue
+flutter test --coverage             # seluruh test hijau
+bash tool/check_coverage.sh         # coverage baris >= 80%
 ```
 <!-- END ZUNIXE-WORKFLOW -->

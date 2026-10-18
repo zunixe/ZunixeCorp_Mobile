@@ -33,7 +33,9 @@ void main() {
         child: MaterialApp(
           home: Scaffold(
             body: AddToCartButton(
-              product: buildProduct(stock: stock),
+              productId: 'p1',
+              productName: 'Produk Uji',
+              stock: stock,
               compact: compact,
               expand: expand,
               label: label,
@@ -125,8 +127,12 @@ void main() {
       routes: [
         GoRoute(
           path: '/',
-          builder: (_, __) => Scaffold(
-            body: AddToCartButton(product: buildProduct()),
+          builder: (_, __) => const Scaffold(
+            body: AddToCartButton(
+              productId: 'p1',
+              productName: 'Produk Uji',
+              stock: 5,
+            ),
           ),
         ),
         GoRoute(

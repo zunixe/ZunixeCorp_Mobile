@@ -3,7 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:zunixe_corp_mobile/core/router/app_routes.dart';
 import 'package:zunixe_corp_mobile/core/theme/app_colors.dart';
 import 'package:zunixe_corp_mobile/core/ui/zunixe_logo.dart';
-import 'package:zunixe_corp_mobile/features/auth/presentation/auth_providers.dart';
+import 'package:zunixe_corp_mobile/features/auth/auth.dart';
 import 'package:go_router/go_router.dart';
 
 /// Drawer navigasi home (tamu vs login).

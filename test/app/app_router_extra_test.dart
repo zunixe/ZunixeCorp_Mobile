@@ -1,10 +1,10 @@
 import 'package:flutter_test/flutter_test.dart';
 import 'package:mocktail/mocktail.dart';
+import 'package:zunixe_corp_mobile/app/main_shell.dart';
 import 'package:zunixe_corp_mobile/core/result.dart';
 import 'package:zunixe_corp_mobile/core/router/app_routes.dart';
 import 'package:zunixe_corp_mobile/features/catalog/catalog.dart';
 import 'package:zunixe_corp_mobile/features/checkout/checkout.dart';
-import 'package:zunixe_corp_mobile/features/home/home.dart';
 import 'package:zunixe_corp_mobile/features/orders/orders.dart';
 import 'package:zunixe_corp_mobile/features/support/support.dart';
 
@@ -15,7 +15,7 @@ void main() {
     registerFallbackValue(ProductSort.newest);
   });
 
-  testWidgets('order-success tanpa extra -> fallback MainShell',
+  testWidgets('order-success tanpa extra -> redirect ke home',
       (tester) async {
     final h = await pumpRouter(
       tester,
@@ -27,7 +27,8 @@ void main() {
     await tester.pump();
     await tester.pump();
 
-    expect(find.byType(MainShell), findsWidgets);
+    expect(h.router.state.matchedLocation, AppRoutes.home);
+    expect(find.byType(OrderSuccessScreen), findsNothing);
   });
 
   testWidgets('order-success dengan extra -> OrderSuccessScreen',

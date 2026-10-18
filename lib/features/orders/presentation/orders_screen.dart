@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:zunixe_corp_mobile/features/orders/orders.dart';
 import 'package:zunixe_corp_mobile/core/ui/app_header.dart';
-import 'package:zunixe_corp_mobile/features/checkout/checkout.dart';
 import 'package:zunixe_corp_mobile/core/utils/format.dart';
 import 'package:zunixe_corp_mobile/features/auth/auth.dart';
 import 'package:zunixe_corp_mobile/core/theme/app_colors.dart';

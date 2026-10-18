@@ -3,7 +3,7 @@ import 'package:flutter/services.dart';
 import 'package:zunixe_corp_mobile/core/ui/app_header.dart';
 import 'package:zunixe_corp_mobile/core/ui/zunixe_logo.dart';
 import 'package:zunixe_corp_mobile/core/ui/gradient_button.dart';
-import 'payment_info.dart';
+import 'package:zunixe_corp_mobile/features/orders/orders.dart';
 import 'package:zunixe_corp_mobile/core/utils/format.dart';
 import 'package:zunixe_corp_mobile/core/theme/app_colors.dart';
 import 'package:zunixe_corp_mobile/core/router/app_routes.dart';

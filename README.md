@@ -16,10 +16,11 @@ flutter run
 ## Test & lint
 
 ```bash
-flutter analyze                 # harus 0 issue
-flutter test                    # seluruh unit + widget test
-flutter test --coverage         # + laporan coverage (coverage/lcov.info)
-lcov --summary coverage/lcov.info
+flutter analyze                     # harus 0 issue
+dart run tool/check_imports.dart    # batas modul antar-fitur
+flutter test                        # seluruh unit + widget test
+flutter test --coverage             # + laporan coverage (coverage/lcov.info)
+bash tool/check_coverage.sh         # gate coverage baris >= 80%
 ```
 
 CI (`.github/workflows/ci.yml`) menjalankan `analyze` + `test --coverage` untuk

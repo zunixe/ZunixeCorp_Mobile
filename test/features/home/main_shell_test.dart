@@ -14,7 +14,7 @@ import 'package:zunixe_corp_mobile/features/auth/auth.dart';
 import '../../helpers/fakes.dart';
 import '../../helpers/fake_http.dart';
 import '../../helpers/riverpod_scope.dart';
-import 'package:zunixe_corp_mobile/features/home/home.dart';
+import 'package:zunixe_corp_mobile/app/main_shell.dart';
 
 void main() {
   HttpOverrides? previous;

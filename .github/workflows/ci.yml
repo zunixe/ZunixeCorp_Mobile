@@ -27,6 +27,9 @@ jobs:
       - name: Analyze (fail on any issue)
         run: flutter analyze --fatal-infos --fatal-warnings
 
+      - name: Check module boundaries
+        run: dart run tool/check_imports.dart
+
       - name: Run tests with coverage
         run: flutter test --coverage
 
@@ -34,12 +37,7 @@ jobs:
         run: sudo apt-get update && sudo apt-get install -y lcov
 
       - name: Enforce coverage threshold (>= 80%)
-        run: |
-          lcov --summary coverage/lcov.info
-          PCT=$(lcov --summary coverage/lcov.info 2>&1 \
-            | awk '/lines/ { gsub(/%/,""); print $2 }')
-          echo "Line coverage: ${PCT}%"
-          awk -v p="$PCT" 'BEGIN { if (p+0 < 80) { print "Coverage " p "% < 80%"; exit 1 } }'
+        run: bash tool/check_coverage.sh
 
       - name: Upload coverage artifact
         if: always()
