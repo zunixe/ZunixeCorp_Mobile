@@ -13,7 +13,7 @@ abstract final class AppColors {
 
   // Teks & netral.
   static const Color ink = Color(0xFF3C3C3C);
-  static const Color grey = Color(0xFF7A7A7A);
+  static const Color grey = Color(0xFF5F5F5F);
   static const Color muted = Color(0xFFAAAAAA);
   static const Color silver = Color(0xFFB0B0B0);
   static const Color dark = Color(0xFF1F2937);

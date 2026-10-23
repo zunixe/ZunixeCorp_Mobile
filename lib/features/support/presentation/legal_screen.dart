@@ -19,11 +19,17 @@ class LegalScreen extends StatelessWidget {
     },
     'privacy': {
       'title': 'Kebijakan Privasi',
-      'body': 'Kami menyimpan data yang Anda berikan (nama, email, no. HP, alamat) '
-          'hanya untuk memproses pesanan dan layanan pelanggan.\n\n'
+      'body': 'Pengendali data: CV Zunixe Berkah Jaya.\n\n'
+          'Kami menyimpan data yang Anda berikan (nama, email, no. HP, alamat) '
+          'hanya untuk memproses pesanan dan layanan pelanggan. Data disimpan '
+          'di Supabase (penyedia basis data) dan hanya dapat diakses oleh '
+          'petugas yang berwenang.\n\n'
           'Data tidak dibagikan ke pihak ketiga kecuali jasa pengiriman untuk '
-          'keperluan pengantaran. Anda dapat meminta penghapusan data via '
-          'WhatsApp ${StoreConfig.waDisplay}.',
+          'keperluan pengantaran. Riwayat pesanan disimpan selama diperlukan '
+          'untuk kewajiban administrasi dan pajak.\n\n'
+          'Anda dapat menghapus akun beserta profil, keranjang, dan riwayat '
+          'pesanan langsung dari menu Akun → Hapus Akun, atau menghubungi '
+          'WhatsApp ${StoreConfig.waDisplay}. Penghapusan bersifat permanen.',
     },
     'shipping': {
       'title': 'Kebijakan Pengiriman',

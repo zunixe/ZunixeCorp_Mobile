@@ -24,10 +24,10 @@ void main() {
     return tester.pumpWidget(
       ProviderScope(
         overrides: [
-          productRepositoryProvider.overrideWithValue(
-              productRepo ?? MockProductRepository()),
-          cartRepositoryProvider.overrideWithValue(
-              cartRepo ?? MockCartRepository()),
+          productRepositoryProvider
+              .overrideWithValue(productRepo ?? MockProductRepository()),
+          cartRepositoryProvider
+              .overrideWithValue(cartRepo ?? MockCartRepository()),
           authRepositoryProvider.overrideWithValue(mockAuthRepo()),
         ],
         child: MaterialApp(home: screen ?? const SizedBox()),
@@ -44,8 +44,7 @@ void main() {
   }
 
   testWidgets('produk langsung -> detail tampil', (tester) async {
-    await pump(
-        tester,
+    await pump(tester,
         screen: ProductDetailScreen(
             product: buildProduct(
           name: 'Board X',
@@ -67,8 +66,7 @@ void main() {
   });
 
   testWidgets('tanpa diskon -> tanpa harga coret', (tester) async {
-    await pump(
-        tester,
+    await pump(tester,
         screen: ProductDetailScreen(
             product: buildProduct(price: 50000, originalPrice: 0)));
     expect(find.text('Rp50.000'), findsOneWidget);
@@ -76,8 +74,8 @@ void main() {
   });
 
   testWidgets('stok habis -> badge merah + tombol mati', (tester) async {
-    await pump(
-        tester, screen: ProductDetailScreen(product: buildProduct(stock: 0)));
+    await pump(tester,
+        screen: ProductDetailScreen(product: buildProduct(stock: 0)));
     expect(find.text('Stok Habis'), findsWidgets);
   });
 
@@ -90,8 +88,7 @@ void main() {
   testWidgets('via productId -> fetch repository', (tester) async {
     final repo = productRepoWith(buildProduct(id: 'x9', name: 'Dari Server'));
     await pump(tester,
-        screen: const ProductDetailScreen(productId: 'x9'),
-        productRepo: repo);
+        screen: const ProductDetailScreen(productId: 'x9'), productRepo: repo);
     await tester.pump();
     await tester.pump();
     verify(() => repo.getProductById('x9')).called(1);
@@ -108,16 +105,14 @@ void main() {
   });
 
   testWidgets('kategori "0" disembunyikan', (tester) async {
-    await pump(
-        tester,
+    await pump(tester,
         screen: ProductDetailScreen(
             product: buildProduct(category: '0', stock: 1)));
     expect(find.text('0'), findsNothing);
   });
 
   testWidgets('galeri multi-image -> thumbnail tampil', (tester) async {
-    await pump(
-        tester,
+    await pump(tester,
         screen: ProductDetailScreen(
             product: buildProduct(
           imageUrl: 'https://x/a.png',

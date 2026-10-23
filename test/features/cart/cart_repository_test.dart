@@ -70,8 +70,7 @@ void main() {
       client.stubRpc('cart_add', returning: null);
       final repo = CartRepositorySupabase(client: client);
 
-      final res =
-          await repo.addToCart(productId: 'p1', quantity: 2);
+      final res = await repo.addToCart(productId: 'p1', quantity: 2);
 
       expect(res.isOk, isTrue);
       final captured = verify(

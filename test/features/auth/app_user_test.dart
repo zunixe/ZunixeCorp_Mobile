@@ -25,8 +25,8 @@ void main() {
     });
 
     test('email null -> displayName User', () {
-      final user = AppUser.fromSupabase(
-          buildUser(email: null, userMetadata: const {}));
+      final user =
+          AppUser.fromSupabase(buildUser(email: null, userMetadata: const {}));
 
       expect(user.email, isNull);
       expect(user.displayName, 'User');

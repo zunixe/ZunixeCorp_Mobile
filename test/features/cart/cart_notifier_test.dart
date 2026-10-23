@@ -17,8 +17,7 @@ void main() {
       overrides: [
         if (cartRepo != null)
           cartRepositoryProvider.overrideWithValue(cartRepo),
-        authRepositoryProvider.overrideWithValue(
-            authRepo ?? mockAuthRepo()),
+        authRepositoryProvider.overrideWithValue(authRepo ?? mockAuthRepo()),
       ],
     );
     addTearDown(container.dispose);
@@ -41,8 +40,8 @@ void main() {
   group('fetchCart', () {
     test('login -> isi dari repository', () async {
       final cartRepo = MockCartRepository();
-      when(() => cartRepo.fetchCart(any())).thenAnswer(
-        (_) async => Result.ok([item('a', qty: 2, price: 500)]));
+      when(() => cartRepo.fetchCart(any()))
+          .thenAnswer((_) async => Result.ok([item('a', qty: 2, price: 500)]));
       final container = containerWith(
         cartRepo: cartRepo,
         authRepo: mockAuthRepo(user: buildUser(id: 'u1')),
@@ -59,8 +58,8 @@ void main() {
 
     test('error -> pesan generik', () async {
       final cartRepo = MockCartRepository();
-      when(() => cartRepo.fetchCart(any())).thenAnswer(
-        (_) async => const Result.err(ServerFailure('x')));
+      when(() => cartRepo.fetchCart(any()))
+          .thenAnswer((_) async => const Result.err(ServerFailure('x')));
       final container = containerWith(
         cartRepo: cartRepo,
         authRepo: mockAuthRepo(user: buildUser(id: 'u1')),
@@ -78,8 +77,7 @@ void main() {
       when(() => cartRepo.fetchCart(any()))
           .thenAnswer((_) async => const Result.ok([]));
       final authRepo = mockAuthRepo(user: buildUser(id: 'u1'));
-      final container =
-          containerWith(cartRepo: cartRepo, authRepo: authRepo);
+      final container = containerWith(cartRepo: cartRepo, authRepo: authRepo);
       // Baca provider agar build() jalan, lalu biarkan fetch awal selesai.
       container.read(cartNotifierProvider);
       await Future<void>.delayed(Duration.zero);
@@ -106,8 +104,8 @@ void main() {
             productId: any(named: 'productId'),
             quantity: any(named: 'quantity'),
           )).thenAnswer((_) async => const Result.ok(null));
-      when(() => cartRepo.fetchCart(any())).thenAnswer(
-        (_) async => Result.ok([item('c1')]));
+      when(() => cartRepo.fetchCart(any()))
+          .thenAnswer((_) async => Result.ok([item('c1')]));
       final container = containerWith(
         cartRepo: cartRepo,
         authRepo: mockAuthRepo(user: buildUser(id: 'u1')),
@@ -126,10 +124,11 @@ void main() {
       when(() => cartRepo.fetchCart(any()))
           .thenAnswer((_) async => const Result.ok([]));
       when(() => cartRepo.addToCart(
-            productId: any(named: 'productId'),
-            quantity: any(named: 'quantity'),
-          )).thenAnswer((_) async =>
-          const Result.err(ServerFailure('Not authenticated')));
+                productId: any(named: 'productId'),
+                quantity: any(named: 'quantity'),
+              ))
+          .thenAnswer((_) async =>
+              const Result.err(ServerFailure('Not authenticated')));
       final container = containerWith(
         cartRepo: cartRepo,
         authRepo: mockAuthRepo(user: buildUser(id: 'u1')),
@@ -160,17 +159,61 @@ void main() {
       await notifier.updateQuantity('c1', 3);
       verify(() => cartRepo.updateQuantity('c1', 3)).called(1);
 
-      when(() => cartRepo.updateQuantity(any(), any())).thenAnswer(
-        (_) async => const Result.err(ServerFailure('x')));
+      when(() => cartRepo.updateQuantity(any(), any()))
+          .thenAnswer((_) async => const Result.err(ServerFailure('x')));
       await notifier.updateQuantity('c1', 3);
       expect(container.read(cartNotifierProvider).error,
           'Gagal memperbarui jumlah');
     });
 
+    test('updateQuantity ganda pada item sama diabaikan saat berjalan',
+        () async {
+      final cartRepo = MockCartRepository();
+      when(() => cartRepo.updateQuantity(any(), any())).thenAnswer((_) async {
+        await Future<void>.delayed(const Duration(milliseconds: 20));
+        return const Result.ok(null);
+      });
+      when(() => cartRepo.fetchCart(any()))
+          .thenAnswer((_) async => const Result.ok([]));
+      final container = containerWith(
+        cartRepo: cartRepo,
+        authRepo: mockAuthRepo(user: buildUser(id: 'u1')),
+      );
+      final notifier = container.read(cartNotifierProvider.notifier);
+
+      final first = notifier.updateQuantity('c1', 2);
+      final second = notifier.updateQuantity('c1', 3);
+      await Future.wait([first, second]);
+
+      verify(() => cartRepo.updateQuantity('c1', 2)).called(1);
+      verifyNever(() => cartRepo.updateQuantity('c1', 3));
+    });
+
+    test('updateQuantity melebihi stok ditolak tanpa memanggil server',
+        () async {
+      final cartRepo = MockCartRepository();
+      when(() => cartRepo.fetchCart(any())).thenAnswer((_) async =>
+          Result.ok([buildCartItem(id: 'c1', quantity: 2, stock: 2)]));
+      final container = containerWith(
+        cartRepo: cartRepo,
+        authRepo: mockAuthRepo(user: buildUser(id: 'u1')),
+      );
+      final notifier = container.read(cartNotifierProvider.notifier);
+      await notifier.fetchCart();
+      // Tunggu fetch otomatis dari build selesai agar tidak menimpa error.
+      await Future<void>.delayed(Duration.zero);
+
+      await notifier.updateQuantity('c1', 3);
+
+      verifyNever(() => cartRepo.updateQuantity(any(), any()));
+      expect(container.read(cartNotifierProvider).error,
+          contains('melebihi stok'));
+    });
+
     test('removeItem hapus lokal', () async {
       final cartRepo = MockCartRepository();
-      when(() => cartRepo.fetchCart(any())).thenAnswer(
-        (_) async => Result.ok([item('a'), item('b')]));
+      when(() => cartRepo.fetchCart(any()))
+          .thenAnswer((_) async => Result.ok([item('a'), item('b')]));
       when(() => cartRepo.removeItem(any()))
           .thenAnswer((_) async => const Result.ok(null));
       final container = containerWith(
@@ -193,8 +236,8 @@ void main() {
 
     test('clearError menghapus error', () async {
       final cartRepo = MockCartRepository();
-      when(() => cartRepo.fetchCart(any())).thenAnswer(
-        (_) async => const Result.err(ServerFailure('x')));
+      when(() => cartRepo.fetchCart(any()))
+          .thenAnswer((_) async => const Result.err(ServerFailure('x')));
       final container = containerWith(
         cartRepo: cartRepo,
         authRepo: mockAuthRepo(user: buildUser(id: 'u1')),

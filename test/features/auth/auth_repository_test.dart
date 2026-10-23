@@ -20,8 +20,8 @@ void main() {
   group('displayNameFor (murni)', () {
     test('full_name metadata', () {
       expect(
-          displayNameFor(buildUser(
-              userMetadata: {'full_name': 'Budi Santoso'})),
+          displayNameFor(
+              buildUser(userMetadata: {'full_name': 'Budi Santoso'})),
           'Budi Santoso');
     });
 
@@ -94,8 +94,8 @@ void main() {
           )).thenAnswer((_) async => AuthResponse(user: buildUser()));
       final repo = AuthRepositorySupabase(client: client);
 
-      final res = await repo.signUp(
-          email: 'a@b.com', password: 'pw', data: {'full_name': 'A'});
+      final res = await repo
+          .signUp(email: 'a@b.com', password: 'pw', data: {'full_name': 'A'});
 
       expect(res.user?.id, 'u1');
     });
@@ -126,8 +126,9 @@ void main() {
 
       await repo.resetPasswordForEmail('a@b.com', redirectTo: 'zunixe://x');
 
-      verify(() => auth.resetPasswordForEmail('a@b.com',
-          redirectTo: 'zunixe://x')).called(1);
+      verify(() =>
+              auth.resetPasswordForEmail('a@b.com', redirectTo: 'zunixe://x'))
+          .called(1);
     });
   });
 
@@ -167,13 +168,13 @@ void main() {
       expect(p?.phone, '');
     });
 
-    test('error -> null (ditelan)', () async {
+    test('error diteruskan ke pemanggil (tidak ditelan)', () async {
       final client = MockSupabaseTestClient();
       stubSupabaseAuth(client);
       client.stubFrom('profiles', throws: Exception('net'));
       final repo = AuthRepositorySupabase(client: client);
 
-      expect(await repo.getProfile('u1'), isNull);
+      await expectLater(repo.getProfile('u1'), throwsA(isA<Exception>()));
     });
   });
 
@@ -190,7 +191,7 @@ void main() {
       expect(qb.wasCalled('update'), isTrue);
     });
 
-    test('error ditelan -> completes tanpa melempar', () async {
+    test('error diteruskan ke pemanggil', () async {
       final client = MockSupabaseTestClient();
       stubSupabaseAuth(client);
       client.stubFrom('profiles', throws: Exception('net'));
@@ -198,7 +199,7 @@ void main() {
 
       await expectLater(
         repo.saveProfile(userId: 'u1', fullName: 'B', phone: '0'),
-        completes,
+        throwsA(isA<Exception>()),
       );
     });
   });

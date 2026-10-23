@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:url_launcher/url_launcher.dart';
 import 'package:zunixe_corp_mobile/core/config/store.dart';
 import 'package:zunixe_corp_mobile/core/utils/format.dart';
+import 'package:zunixe_corp_mobile/core/utils/url_opener.dart';
 import 'package:zunixe_corp_mobile/core/theme/app_colors.dart';
 
 /// Kartu cara bayar manual: transfer + konfirmasi WhatsApp.
@@ -32,16 +32,15 @@ class PaymentInfo extends StatelessWidget {
     if (!context.mounted) return;
     ScaffoldMessenger.of(context).showSnackBar(
       SnackBar(
-          content: Text('$label disalin'),
-          backgroundColor: AppColors.success),
+          content: Text('$label disalin'), backgroundColor: AppColors.success),
     );
   }
 
   Future<void> _openWa(BuildContext context) async {
-    final url = Uri.parse(StoreConfig.waConfirmUrl(orderCode, total));
-    if (await canLaunchUrl(url)) {
-      await launchUrl(url, mode: LaunchMode.externalApplication);
-    } else if (context.mounted) {
+    final opened = await openExternalUrl(
+      StoreConfig.waConfirmUrl(orderCode, total),
+    );
+    if (!opened && context.mounted) {
       ScaffoldMessenger.of(context).showSnackBar(
         const SnackBar(
             content: Text('Tidak dapat membuka WhatsApp'),
@@ -68,8 +67,7 @@ class PaymentInfo extends StatelessWidget {
               Icon(Icons.payment, size: 18, color: AppColors.warning),
               SizedBox(width: 8),
               Text('Cara Bayar',
-                  style: TextStyle(
-                      fontSize: 15, fontWeight: FontWeight.bold)),
+                  style: TextStyle(fontSize: 15, fontWeight: FontWeight.bold)),
             ],
           ),
           const SizedBox(height: 10),
@@ -112,8 +110,7 @@ class PaymentInfo extends StatelessWidget {
                     icon: const Icon(Icons.copy,
                         size: 16, color: AppColors.brand),
                     label: const Text('Salin',
-                        style: TextStyle(
-                            fontSize: 12, color: AppColors.brand)),
+                        style: TextStyle(fontSize: 12, color: AppColors.brand)),
                   ),
                 ],
               ),

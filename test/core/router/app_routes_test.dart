@@ -51,6 +51,28 @@ void main() {
     });
   });
 
+  group('AppRoutes.safeInternalPath', () {
+    test('path internal diterima', () {
+      expect(AppRoutes.safeInternalPath('/checkout'), '/checkout');
+      expect(AppRoutes.safeInternalPath('/orders?x=1'), '/orders?x=1');
+      expect(AppRoutes.safeInternalPath('/product/abc'), '/product/abc');
+    });
+
+    test('URL eksternal / protocol-relative ditolak', () {
+      expect(AppRoutes.safeInternalPath('https://evil.com'), isNull);
+      expect(AppRoutes.safeInternalPath('//evil.com'), isNull);
+      expect(AppRoutes.safeInternalPath('javascript:alert(1)'), isNull);
+      expect(AppRoutes.safeInternalPath('checkout'), isNull);
+    });
+
+    test('null/kosong dan loop login ditolak', () {
+      expect(AppRoutes.safeInternalPath(null), isNull);
+      expect(AppRoutes.safeInternalPath(''), isNull);
+      expect(AppRoutes.safeInternalPath('/login'), isNull);
+      expect(AppRoutes.safeInternalPath('/register'), isNull);
+    });
+  });
+
   group('AppRouteNames — nama logis', () {
     test('nama route terdefinisi', () {
       expect(AppRouteNames.home, 'home');

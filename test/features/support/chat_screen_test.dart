@@ -70,8 +70,8 @@ void main() {
 
   testWidgets('tidak ada riwayat chat palsu (jujur)', (tester) async {
     await pump(tester);
-    expect(find.textContaining('Terima kasih! Pesan Anda tercatat'),
-        findsNothing);
+    expect(
+        find.textContaining('Terima kasih! Pesan Anda tercatat'), findsNothing);
     expect(find.textContaining('tidak menyimpan riwayat chat'), findsOneWidget);
   });
 }

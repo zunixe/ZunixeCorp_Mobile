@@ -46,8 +46,7 @@ void main() {
           limit: any(named: 'limit'),
           sort: any(named: 'sort'),
         )).thenAnswer((_) async => const Result.ok([]));
-    when(() => pr.getCategories())
-        .thenAnswer((_) async => const Result.ok([]));
+    when(() => pr.getCategories()).thenAnswer((_) async => const Result.ok([]));
     final cr = cartRepo ??
         (() {
           final c = MockCartRepository();
@@ -58,8 +57,7 @@ void main() {
     return tester.pumpWidget(
       ProviderScope(
         overrides: [
-          authRepositoryProvider.overrideWithValue(
-              authRepo ?? mockAuthRepo()),
+          authRepositoryProvider.overrideWithValue(authRepo ?? mockAuthRepo()),
           cartRepositoryProvider.overrideWithValue(cr),
           productRepositoryProvider.overrideWithValue(pr),
         ],
@@ -83,8 +81,7 @@ void main() {
           limit: any(named: 'limit'),
           sort: any(named: 'sort'),
         )).thenAnswer((_) async => const Result.ok([]));
-    when(() => pr.getCategories())
-        .thenAnswer((_) async => const Result.ok([]));
+    when(() => pr.getCategories()).thenAnswer((_) async => const Result.ok([]));
     final cr = cartRepo ??
         (() {
           final c = MockCartRepository();
@@ -157,8 +154,7 @@ void main() {
       (tester) async {
     final controller = StreamController<AuthState>.broadcast();
     await pumpWithRouter(tester,
-        authRepo: mockAuthRepo(
-            user: buildUser(), stream: controller.stream));
+        authRepo: mockAuthRepo(user: buildUser(), stream: controller.stream));
     await tester.pump();
     // Event pertama melewatkan AuthGate (MainShell subscribe setelahnya,
     // seperti alur produksi: sesi pulih dulu, link diklik kemudian).

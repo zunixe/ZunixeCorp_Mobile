@@ -17,7 +17,8 @@ void main() {
     });
 
     test('objek dengan properti message dipakai apa adanya', () {
-      expect(serverMessage(_HasMessage('Stok tidak cukup')), 'Stok tidak cukup');
+      expect(
+          serverMessage(_HasMessage('Stok tidak cukup')), 'Stok tidak cukup');
     });
 
     test('objek message kosong diabaikan lalu fallback ke toString', () {

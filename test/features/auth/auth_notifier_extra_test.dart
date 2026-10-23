@@ -90,8 +90,7 @@ void main() {
             .register('a@b.com', 'pw', 'Nama'),
         RegisterResult.failed,
       );
-      expect(container.read(authNotifierProvider).error,
-          'Email sudah dipakai');
+      expect(container.read(authNotifierProvider).error, 'Email sudah dipakai');
     });
 
     test('exception umum -> pesan koneksi', () async {
@@ -116,11 +115,12 @@ void main() {
     test('phone diteruskan ke metadata signUp', () async {
       final repo = baseRepo();
       when(() => repo.signUp(
-            email: any(named: 'email'),
-            password: any(named: 'password'),
-            data: any(named: 'data'),
-          )).thenAnswer(
-          (_) async => AuthResponse(user: buildUser(), session: null));
+                email: any(named: 'email'),
+                password: any(named: 'password'),
+                data: any(named: 'data'),
+              ))
+          .thenAnswer(
+              (_) async => AuthResponse(user: buildUser(), session: null));
       final container = containerWith(repo);
 
       await container
@@ -171,8 +171,7 @@ void main() {
           .signInWithFacebook();
 
       expect(ok, isFalse);
-      expect(container.read(authNotifierProvider).lastMethod,
-          'oauth:facebook');
+      expect(container.read(authNotifierProvider).lastMethod, 'oauth:facebook');
       expect(container.read(authNotifierProvider).error,
           'Login Facebook gagal. Tidak dapat membuka browser.');
     });
@@ -204,9 +203,7 @@ void main() {
       final container = containerWith(repo);
 
       expect(
-        await container
-            .read(authNotifierProvider.notifier)
-            .signInWithGoogle(),
+        await container.read(authNotifierProvider.notifier).signInWithGoogle(),
         isFalse,
       );
       expect(container.read(authNotifierProvider).error,
@@ -234,8 +231,7 @@ void main() {
     test('exception umum -> pesan koneksi', () async {
       final repo = baseRepo();
       when(() => repo.resetPasswordForEmail(any(),
-              redirectTo: any(named: 'redirectTo')))
-          .thenThrow(Exception('boom'));
+          redirectTo: any(named: 'redirectTo'))).thenThrow(Exception('boom'));
       final container = containerWith(repo);
 
       expect(
@@ -252,14 +248,14 @@ void main() {
   group('updatePassword', () {
     test('sukses -> true + user diperbarui', () async {
       final repo = baseRepo();
-      when(() => repo.updateUser(any())).thenAnswer((_) async =>
-          UserResponse.fromJson(<String, dynamic>{
-            'id': 'u1',
-            'email': 'baru@mail.com',
-            'aud': 'authenticated',
-            'created_at': '2024-01-01T00:00:00Z',
-            'user_metadata': {'full_name': 'Baru'},
-          }));
+      when(() => repo.updateUser(any()))
+          .thenAnswer((_) async => UserResponse.fromJson(<String, dynamic>{
+                'id': 'u1',
+                'email': 'baru@mail.com',
+                'aud': 'authenticated',
+                'created_at': '2024-01-01T00:00:00Z',
+                'user_metadata': {'full_name': 'Baru'},
+              }));
       final container = containerWith(repo);
 
       final ok = await container
@@ -277,9 +273,7 @@ void main() {
       final container = containerWith(repo);
 
       expect(
-        await container
-            .read(authNotifierProvider.notifier)
-            .updatePassword('x'),
+        await container.read(authNotifierProvider.notifier).updatePassword('x'),
         isFalse,
       );
       expect(container.read(authNotifierProvider).error,
@@ -292,9 +286,7 @@ void main() {
       final container = containerWith(repo);
 
       expect(
-        await container
-            .read(authNotifierProvider.notifier)
-            .updatePassword('x'),
+        await container.read(authNotifierProvider.notifier).updatePassword('x'),
         isFalse,
       );
       expect(container.read(authNotifierProvider).error,
@@ -307,8 +299,7 @@ void main() {
       final controller = StreamController<AuthState>.broadcast();
       final repo = MockAuthRepository();
       when(() => repo.currentUser).thenReturn(buildUser());
-      when(() => repo.onAuthStateChange)
-          .thenAnswer((_) => controller.stream);
+      when(() => repo.onAuthStateChange).thenAnswer((_) => controller.stream);
       final container = containerWith(repo);
       container.listen(authNotifierProvider, (_, __) {});
       expect(container.read(authNotifierProvider).isLoggedIn, isTrue);

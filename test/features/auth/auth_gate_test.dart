@@ -13,8 +13,7 @@ import 'package:zunixe_corp_mobile/core/router/app_routes.dart';
 
 void main() {
   group('Route guard (redirect router)', () {
-    testWidgets('belum login -> /checkout dialihkan ke /login',
-        (tester) async {
+    testWidgets('belum login -> /checkout dialihkan ke /login', (tester) async {
       await pumpRouter(
         tester,
         authRepo: mockAuthRepo(),
@@ -27,8 +26,7 @@ void main() {
       expect(find.text('Data Penerima'), findsNothing);
     });
 
-    testWidgets('belum login -> /orders dialihkan ke /login',
-        (tester) async {
+    testWidgets('belum login -> /orders dialihkan ke /login', (tester) async {
       await pumpRouter(
         tester,
         authRepo: mockAuthRepo(),
@@ -69,8 +67,7 @@ void main() {
 
     testWidgets('initialized selesai -> child tampil', (tester) async {
       final controller = StreamController<AuthState>.broadcast();
-      final repo = mockAuthRepo(
-          user: buildUser(), stream: controller.stream);
+      final repo = mockAuthRepo(user: buildUser(), stream: controller.stream);
       await pumpGate(tester, repo);
       // Splash dulu karena event pertama belum tiba.
       expect(find.byType(CircularProgressIndicator), findsOneWidget);

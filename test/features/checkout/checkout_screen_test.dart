@@ -28,12 +28,12 @@ void main() {
     return tester.pumpWidget(
       ProviderScope(
         overrides: [
-          authRepositoryProvider.overrideWithValue(
-              authRepo ?? mockAuthRepo(user: buildUser())),
-          cartRepositoryProvider.overrideWithValue(
-              cartRepo ?? MockCartRepository()),
-          orderRepositoryProvider.overrideWithValue(
-              orderRepo ?? MockOrderRepository()),
+          authRepositoryProvider
+              .overrideWithValue(authRepo ?? mockAuthRepo(user: buildUser())),
+          cartRepositoryProvider
+              .overrideWithValue(cartRepo ?? MockCartRepository()),
+          orderRepositoryProvider
+              .overrideWithValue(orderRepo ?? MockOrderRepository()),
         ],
         child: const MaterialApp(home: CheckoutScreen()),
       ),
@@ -42,8 +42,7 @@ void main() {
 
   MockCartRepository cartWith(List<CartItem> items) {
     final cr = MockCartRepository();
-    when(() => cr.fetchCart(any()))
-        .thenAnswer((_) async => Result.ok(items));
+    when(() => cr.fetchCart(any())).thenAnswer((_) async => Result.ok(items));
     return cr;
   }
 
@@ -60,8 +59,7 @@ void main() {
   testWidgets('ringkasan produk + total tampil', (tester) async {
     await pump(tester,
         cartRepo: cartWith([
-          buildCartItem(
-              productName: 'Sensor', price: 50000, quantity: 2),
+          buildCartItem(productName: 'Sensor', price: 50000, quantity: 2),
         ]));
     await tester.pump();
     await tester.pump();
@@ -74,8 +72,8 @@ void main() {
 
   testWidgets('validasi: submit kosong -> error wajib isi', (tester) async {
     final orderRepo = MockOrderRepository();
-    await pump(tester, cartRepo: cartWith([buildCartItem()]),
-        orderRepo: orderRepo);
+    await pump(tester,
+        cartRepo: cartWith([buildCartItem()]), orderRepo: orderRepo);
     await tester.pump();
     await tester.pump();
     await tester.tap(find.textContaining('Buat Pesanan'));
@@ -95,13 +93,14 @@ void main() {
   testWidgets('submit valid -> placeOrder + navigasi sukses', (tester) async {
     final orderRepo = MockOrderRepository();
     when(() => orderRepo.placeOrder(
-          shippingAddress: any(named: 'shippingAddress'),
-          customerName: any(named: 'customerName'),
-          customerPhone: any(named: 'customerPhone'),
-          notes: any(named: 'notes'),
-          idempotencyKey: any(named: 'idempotencyKey'),
-        )).thenAnswer((_) async => const Result.ok(
-        OrderConfirmation(orderCode: 'INV-55', total: 100000)));
+              shippingAddress: any(named: 'shippingAddress'),
+              customerName: any(named: 'customerName'),
+              customerPhone: any(named: 'customerPhone'),
+              notes: any(named: 'notes'),
+              idempotencyKey: any(named: 'idempotencyKey'),
+            ))
+        .thenAnswer((_) async => const Result.ok(
+            OrderConfirmation(orderCode: 'INV-55', total: 100000)));
     final cartRepo = cartWith([buildCartItem()]);
     await pumpRouter(
       tester,
@@ -124,8 +123,7 @@ void main() {
           notes: null,
           idempotencyKey: any(named: 'idempotencyKey'),
         )).called(1);
-    verify(() => cartRepo.fetchCart(any()))
-        .called(greaterThanOrEqualTo(1));
+    verify(() => cartRepo.fetchCart(any())).called(greaterThanOrEqualTo(1));
     expect(find.text('INV-55'), findsOneWidget);
     expect(find.byType(OrderSuccessScreen), findsOneWidget);
   });
@@ -133,13 +131,13 @@ void main() {
   testWidgets('submit gagal -> snackbar error', (tester) async {
     final orderRepo = MockOrderRepository();
     when(() => orderRepo.placeOrder(
-          shippingAddress: any(named: 'shippingAddress'),
-          customerName: any(named: 'customerName'),
-          customerPhone: any(named: 'customerPhone'),
-          notes: any(named: 'notes'),
-          idempotencyKey: any(named: 'idempotencyKey'),
-        )).thenAnswer(
-        (_) async => const Result.err(ServerFailure('Stok habis')));
+              shippingAddress: any(named: 'shippingAddress'),
+              customerName: any(named: 'customerName'),
+              customerPhone: any(named: 'customerPhone'),
+              notes: any(named: 'notes'),
+              idempotencyKey: any(named: 'idempotencyKey'),
+            ))
+        .thenAnswer((_) async => const Result.err(ServerFailure('Stok habis')));
     await pump(tester,
         cartRepo: cartWith([buildCartItem()]), orderRepo: orderRepo);
     await tester.pump();
@@ -182,7 +180,8 @@ void main() {
     await tester.pump();
     // Teks berada di bawah fold -> cari dengan skipOffstage false.
     expect(
-        find.textContaining('konfirmasi via WhatsApp 0877-7771-1056',
+        find.textContaining(
+            'Nomor rekening dikirim melalui WhatsApp 0877-7771-1056',
             skipOffstage: false),
         findsOneWidget);
   });

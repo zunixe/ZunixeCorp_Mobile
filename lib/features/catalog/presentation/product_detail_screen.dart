@@ -3,6 +3,7 @@ import 'package:flutter_riverpod/flutter_riverpod.dart';
 import 'package:zunixe_corp_mobile/features/catalog/catalog.dart';
 import 'package:zunixe_corp_mobile/features/cart/cart.dart';
 import 'package:zunixe_corp_mobile/core/ui/app_header.dart';
+import 'package:zunixe_corp_mobile/core/ui/product_image.dart';
 import 'package:zunixe_corp_mobile/core/utils/format.dart';
 import 'package:zunixe_corp_mobile/core/theme/app_colors.dart';
 import 'package:zunixe_corp_mobile/core/router/app_routes.dart';
@@ -38,8 +39,7 @@ class _ProductDetailScreenState extends ConsumerState<ProductDetailScreen> {
   }
 
   Future<void> _fetchProduct(String id) async {
-    final res =
-        await ref.read(productRepositoryProvider).getProductById(id);
+    final res = await ref.read(productRepositoryProvider).getProductById(id);
     if (!mounted) return;
     setState(() {
       _product = res.fold((p) => p, (_) => null);
@@ -77,9 +77,12 @@ class _ProductDetailScreenState extends ConsumerState<ProductDetailScreen> {
                   child: Column(
                     mainAxisSize: MainAxisSize.min,
                     children: [
-                      Icon(Icons.error_outline, size: 64, color: Colors.grey[400]),
+                      Icon(Icons.error_outline,
+                          size: 64, color: Colors.grey[400]),
                       const SizedBox(height: 16),
-                      Text('Produk tidak ditemukan', style: TextStyle(fontSize: 16, color: Colors.grey[600])),
+                      Text('Produk tidak ditemukan',
+                          style:
+                              TextStyle(fontSize: 16, color: Colors.grey[600])),
                       const SizedBox(height: 16),
                       ElevatedButton(
                         onPressed: () => Navigator.pop(context),
@@ -100,10 +103,14 @@ class _ProductDetailScreenState extends ConsumerState<ProductDetailScreen> {
     }
 
     final gallery = <String>[
-      if (p.imageList.isNotEmpty) ...p.imageList else if (p.imageUrl.isNotEmpty) p.imageUrl,
+      if (p.imageList.isNotEmpty)
+        ...p.imageList
+      else if (p.imageUrl.isNotEmpty)
+        p.imageUrl,
     ];
     final hasImage = gallery.isNotEmpty;
-    final currentImg = hasImage ? gallery[_imgIndex.clamp(0, gallery.length - 1)] : '';
+    final currentImg =
+        hasImage ? gallery[_imgIndex.clamp(0, gallery.length - 1)] : '';
 
     return Scaffold(
       backgroundColor: AppColors.background,
@@ -127,35 +134,13 @@ class _ProductDetailScreenState extends ConsumerState<ProductDetailScreen> {
                       padding: const EdgeInsets.all(20),
                       child: ClipRRect(
                         borderRadius: BorderRadius.circular(12),
-                        child: Image.network(
-                          currentImg,
+                        child: ProductImage(
+                          url: currentImg,
                           height: 260,
                           width: double.infinity,
                           fit: BoxFit.contain,
                           cacheWidth: 800,
-                          loadingBuilder: (context, child, progress) {
-                            if (progress == null) return child;
-                            return Container(
-                              color: AppColors.inputFill,
-                              height: 260,
-                              alignment: Alignment.center,
-                              child: const CircularProgressIndicator(
-                                color: AppColors.brand, strokeWidth: 2),
-                            );
-                          },
-                          errorBuilder: (context, error, stackTrace) => Container(
-                            color: AppColors.inputFill,
-                            height: 260,
-                            child: Column(
-                              mainAxisAlignment: MainAxisAlignment.center,
-                              children: [
-                                Icon(Icons.image_not_supported, size: 56, color: Colors.grey[350]),
-                                const SizedBox(height: 8),
-                                Text('Gambar tidak tersedia',
-                                    style: TextStyle(fontSize: 12, color: Colors.grey[500])),
-                              ],
-                            ),
-                          ),
+                          iconSize: 56,
                         ),
                       ),
                     ),
@@ -168,7 +153,8 @@ class _ProductDetailScreenState extends ConsumerState<ProductDetailScreen> {
                           child: ListView.separated(
                             scrollDirection: Axis.horizontal,
                             itemCount: gallery.length,
-                            separatorBuilder: (_, __) => const SizedBox(width: 8),
+                            separatorBuilder: (_, __) =>
+                                const SizedBox(width: 8),
                             itemBuilder: (context, i) => GestureDetector(
                               onTap: () => setState(() => _imgIndex = i),
                               child: Container(
@@ -176,20 +162,19 @@ class _ProductDetailScreenState extends ConsumerState<ProductDetailScreen> {
                                 decoration: BoxDecoration(
                                   borderRadius: BorderRadius.circular(8),
                                   border: Border.all(
-                                    color: i == _imgIndex ? AppColors.brand : Colors.transparent,
+                                    color: i == _imgIndex
+                                        ? AppColors.brand
+                                        : Colors.transparent,
                                     width: 2,
                                   ),
                                 ),
                                 child: ClipRRect(
                                   borderRadius: BorderRadius.circular(6),
-                                  child: Image.network(
-                                    gallery[i],
+                                  child: ProductImage(
+                                    url: gallery[i],
                                     fit: BoxFit.cover,
                                     cacheWidth: 200,
-                                    errorBuilder: (_, __, ___) => Container(
-                                      color: AppColors.inputFill,
-                                      child: Icon(Icons.image, size: 20, color: Colors.grey[350]),
-                                    ),
+                                    iconSize: 20,
                                   ),
                                 ),
                               ),
@@ -200,13 +185,18 @@ class _ProductDetailScreenState extends ConsumerState<ProductDetailScreen> {
                   ],
                   Container(
                     color: Colors.white,
-                    padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+                    padding: const EdgeInsets.symmetric(
+                        horizontal: 20, vertical: 16),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.start,
                       children: [
                         Text(
                           p.name,
-                          style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: AppColors.ink, height: 1.4),
+                          style: const TextStyle(
+                              fontSize: 18,
+                              fontWeight: FontWeight.bold,
+                              color: AppColors.ink,
+                              height: 1.4),
                         ),
                         const SizedBox(height: 10),
                         Row(
@@ -214,7 +204,10 @@ class _ProductDetailScreenState extends ConsumerState<ProductDetailScreen> {
                           children: [
                             Text(
                               formatRupiah(p.price),
-                              style: const TextStyle(fontSize: 24, fontWeight: FontWeight.bold, color: AppColors.brand),
+                              style: const TextStyle(
+                                  fontSize: 24,
+                                  fontWeight: FontWeight.bold,
+                                  color: AppColors.brand),
                             ),
                             if (p.originalPrice > p.price) ...[
                               const SizedBox(width: 10),
@@ -228,7 +221,8 @@ class _ProductDetailScreenState extends ConsumerState<ProductDetailScreen> {
                               ),
                               const SizedBox(width: 8),
                               Container(
-                                padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
+                                padding: const EdgeInsets.symmetric(
+                                    horizontal: 6, vertical: 2),
                                 decoration: BoxDecoration(
                                   color: AppColors.errorBg,
                                   borderRadius: BorderRadius.circular(4),
@@ -236,7 +230,9 @@ class _ProductDetailScreenState extends ConsumerState<ProductDetailScreen> {
                                 child: Text(
                                   '-${p.discountPercent}%',
                                   style: const TextStyle(
-                                      fontSize: 11, fontWeight: FontWeight.bold, color: AppColors.brand),
+                                      fontSize: 11,
+                                      fontWeight: FontWeight.bold,
+                                      color: AppColors.brand),
                                 ),
                               ),
                             ],
@@ -246,25 +242,36 @@ class _ProductDetailScreenState extends ConsumerState<ProductDetailScreen> {
                         Row(
                           children: [
                             Container(
-                              padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                              padding: const EdgeInsets.symmetric(
+                                  horizontal: 10, vertical: 5),
                               decoration: BoxDecoration(
-                                color: (p.stock > 0 ? AppColors.successBg : AppColors.errorBg),
+                                color: (p.stock > 0
+                                    ? AppColors.successBg
+                                    : AppColors.errorBg),
                                 borderRadius: BorderRadius.circular(6),
                               ),
                               child: Row(
                                 children: [
                                   Icon(
-                                    p.stock > 0 ? Icons.check_circle : Icons.cancel,
+                                    p.stock > 0
+                                        ? Icons.check_circle
+                                        : Icons.cancel,
                                     size: 13,
-                                    color: p.stock > 0 ? AppColors.success : Colors.red,
+                                    color: p.stock > 0
+                                        ? AppColors.success
+                                        : Colors.red,
                                   ),
                                   const SizedBox(width: 5),
                                   Text(
-                                    p.stock > 0 ? 'Stok ${p.stock}' : 'Stok Habis',
+                                    p.stock > 0
+                                        ? 'Stok ${p.stock}'
+                                        : 'Stok Habis',
                                     style: TextStyle(
                                       fontSize: 12,
                                       fontWeight: FontWeight.w600,
-                                      color: p.stock > 0 ? AppColors.success : Colors.red,
+                                      color: p.stock > 0
+                                          ? AppColors.success
+                                          : Colors.red,
                                     ),
                                   ),
                                 ],
@@ -273,29 +280,38 @@ class _ProductDetailScreenState extends ConsumerState<ProductDetailScreen> {
                             if (p.category.isNotEmpty && p.category != '0') ...[
                               const SizedBox(width: 8),
                               Container(
-                                padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 5),
+                                padding: const EdgeInsets.symmetric(
+                                    horizontal: 10, vertical: 5),
                                 decoration: BoxDecoration(
                                   color: AppColors.chipFillAlt,
                                   borderRadius: BorderRadius.circular(6),
                                 ),
                                 child: Text(
                                   p.category,
-                                  style: const TextStyle(fontSize: 12, color: AppColors.chipText),
+                                  style: const TextStyle(
+                                      fontSize: 12, color: AppColors.chipText),
                                 ),
                               ),
                             ],
                           ],
                         ),
-                        if (p.description != null && p.description!.trim().isNotEmpty) ...[
+                        if (p.description != null &&
+                            p.description!.trim().isNotEmpty) ...[
                           const SizedBox(height: 18),
                           const Divider(),
                           const SizedBox(height: 10),
                           const Text('Deskripsi Produk',
-                              style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600, color: AppColors.ink)),
+                              style: TextStyle(
+                                  fontSize: 16,
+                                  fontWeight: FontWeight.w600,
+                                  color: AppColors.ink)),
                           const SizedBox(height: 8),
                           Text(
                             p.description!,
-                            style: TextStyle(fontSize: 14, color: Colors.grey[700], height: 1.6),
+                            style: TextStyle(
+                                fontSize: 14,
+                                color: Colors.grey[700],
+                                height: 1.6),
                           ),
                         ],
                         const SizedBox(height: 110),

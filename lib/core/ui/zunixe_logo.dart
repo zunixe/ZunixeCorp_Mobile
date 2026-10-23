@@ -48,7 +48,8 @@ class _ZunixeRobotPainter extends CustomPainter {
     final antFrom = Offset(50 * u, 26 * u);
     final antTo = Offset(50 * u, 12 * u);
     canvas.drawLine(
-      antFrom, antTo,
+      antFrom,
+      antTo,
       Paint()
         ..color = AppColors.brand
         ..strokeWidth = 3.4 * u
@@ -70,7 +71,8 @@ class _ZunixeRobotPainter extends CustomPainter {
 
     // ---- Kepala (gradient merah) ----
     final headRect = Rect.fromLTWH(14 * u, 24 * u, 72 * u, 58 * u);
-    final headRRect = RRect.fromRectAndRadius(headRect, Radius.circular(20 * u));
+    final headRRect =
+        RRect.fromRectAndRadius(headRect, Radius.circular(20 * u));
     final headPaint = Paint()
       ..shader = const LinearGradient(
         begin: Alignment.topCenter,
@@ -89,7 +91,8 @@ class _ZunixeRobotPainter extends CustomPainter {
 
     // ---- Visor gelap + stroke cyan ----
     final visorRect = Rect.fromLTWH(21 * u, 38 * u, 58 * u, 25 * u);
-    final visorRRect = RRect.fromRectAndRadius(visorRect, Radius.circular(11 * u));
+    final visorRRect =
+        RRect.fromRectAndRadius(visorRect, Radius.circular(11 * u));
     canvas.drawRRect(visorRRect, Paint()..color = visor);
     canvas.drawRRect(
       visorRRect,
@@ -131,25 +134,25 @@ class _ZunixeRobotPainter extends CustomPainter {
       ..color = Colors.white.withValues(alpha: 0.35)
       ..maskFilter = MaskFilter.blur(BlurStyle.normal, 1.6 * u);
     canvas.drawRRect(
-        RRect.fromRectAndRadius(
-            Rect.fromLTWH(zx0, zTopY, zw, barH), zR), zGlow);
+        RRect.fromRectAndRadius(Rect.fromLTWH(zx0, zTopY, zw, barH), zR),
+        zGlow);
     canvas.drawRRect(
-        RRect.fromRectAndRadius(
-            Rect.fromLTWH(zx0, zBotY - barH, zw, barH), zR), zGlow);
+        RRect.fromRectAndRadius(Rect.fromLTWH(zx0, zBotY - barH, zw, barH), zR),
+        zGlow);
     canvas.drawPath(diagPath, zGlow);
 
     canvas.drawRRect(
-        RRect.fromRectAndRadius(
-            Rect.fromLTWH(zx0, zTopY, zw, barH), zR), white);
+        RRect.fromRectAndRadius(Rect.fromLTWH(zx0, zTopY, zw, barH), zR),
+        white);
     canvas.drawRRect(
-        RRect.fromRectAndRadius(
-            Rect.fromLTWH(zx0, zBotY - barH, zw, barH), zR), white);
+        RRect.fromRectAndRadius(Rect.fromLTWH(zx0, zBotY - barH, zw, barH), zR),
+        white);
     canvas.drawPath(diagPath, white);
 
     // ---- Lampu mulut cyan ----
     canvas.drawRRect(
-      RRect.fromRectAndRadius(
-          Rect.fromLTWH(43 * u, 70 * u, 14 * u, 3.4 * u), Radius.circular(1.7 * u)),
+      RRect.fromRectAndRadius(Rect.fromLTWH(43 * u, 70 * u, 14 * u, 3.4 * u),
+          Radius.circular(1.7 * u)),
       cyanPaint,
     );
 

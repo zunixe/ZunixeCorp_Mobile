@@ -1,7 +1,22 @@
+import 'dart:typed_data';
+
 import 'package:supabase_flutter/supabase_flutter.dart';
 import 'package:zunixe_corp_mobile/core/result.dart';
 import 'package:zunixe_corp_mobile/features/orders/domain/entities/order.dart';
 import 'package:zunixe_corp_mobile/features/orders/domain/repositories/order_repository.dart';
+
+/// Path Storage bukti transfer: `<user_id>/<order_id>-<timestamp>.<ext>`.
+/// Folder pertama = user id agar policy Storage mudah dan aman.
+String paymentProofPath({
+  required String userId,
+  required String orderId,
+  required String extension,
+  required int timestamp,
+}) {
+  final clean = extension.toLowerCase().replaceAll(RegExp(r'[^a-z0-9]'), '');
+  final ext = clean.isEmpty ? 'jpg' : clean;
+  return '$userId/$orderId-$timestamp.$ext';
+}
 
 /// [OrderRepository] berbasis Supabase/PostgREST + RPC.
 class OrderRepositorySupabase implements OrderRepository {
@@ -30,8 +45,7 @@ class OrderRepositorySupabase implements OrderRepository {
       return Result.ok(
           OrderConfirmation.fromMap(Map<String, dynamic>.from(res as Map)));
     } catch (e) {
-      return Result.err(
-          Failure.from(e, fallback: 'Gagal membuat pesanan.'));
+      return Result.err(Failure.from(e, fallback: 'Gagal membuat pesanan.'));
     }
   }
 
@@ -49,8 +63,7 @@ class OrderRepositorySupabase implements OrderRepository {
           .toList();
       return Result.ok(orders);
     } catch (e) {
-      return Result.err(
-          Failure.from(e, fallback: 'Gagal memuat pesanan'));
+      return Result.err(Failure.from(e, fallback: 'Gagal memuat pesanan'));
     }
   }
 
@@ -64,8 +77,8 @@ class OrderRepositorySupabase implements OrderRepository {
           .maybeSingle();
       if (row == null) return const Result.ok(null);
       return Result.ok(Order.fromMap(Map<String, dynamic>.from(row)));
-    } catch (_) {
-      return const Result.ok(null);
+    } catch (e) {
+      return Result.err(Failure.from(e, fallback: 'Gagal memuat pesanan'));
     }
   }
 
@@ -75,8 +88,40 @@ class OrderRepositorySupabase implements OrderRepository {
       await _client.rpc('cancel_order', params: {'p_order_id': orderId});
       return const Result.ok(null);
     } catch (e) {
+      return Result.err(Failure.from(e, fallback: 'Gagal membatalkan.'));
+    }
+  }
+
+  @override
+  Future<Result<void>> submitPaymentProof({
+    required String orderId,
+    required String userId,
+    required Uint8List bytes,
+    required String fileExtension,
+  }) async {
+    try {
+      final path = paymentProofPath(
+        userId: userId,
+        orderId: orderId,
+        extension: fileExtension,
+        timestamp: DateTime.now().millisecondsSinceEpoch,
+      );
+      final contentType =
+          fileExtension.toLowerCase() == 'png' ? 'image/png' : 'image/jpeg';
+      await _client.storage.from('payment-proofs').uploadBinary(
+            path,
+            bytes,
+            fileOptions: FileOptions(contentType: contentType),
+          );
+      await _client.rpc('submit_payment_proof', params: {
+        'p_order_id': orderId,
+        'p_path': path,
+      });
+      return const Result.ok(null);
+    } catch (e) {
       return Result.err(
-          Failure.from(e, fallback: 'Gagal membatalkan.'));
+        Failure.from(e, fallback: 'Gagal mengunggah bukti transfer.'),
+      );
     }
   }
 }

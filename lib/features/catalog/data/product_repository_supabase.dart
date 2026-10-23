@@ -53,8 +53,8 @@ class ProductRepositorySupabase implements ProductRepository {
           .toList();
       return Result.ok(products);
     } catch (e) {
-      return Result.err(Failure.from(e,
-          fallback: 'Gagal memuat produk. Periksa koneksi.'));
+      return Result.err(
+          Failure.from(e, fallback: 'Gagal memuat produk. Periksa koneksi.'));
     }
   }
 
@@ -66,12 +66,13 @@ class ProductRepositorySupabase implements ProductRepository {
           .select('category')
           .eq('is_active', true)
           .gt('stock', 0)
-          .order('category', ascending: true)
-          .limit(200);
+          .order('category', ascending: true);
       final set = <String>{};
       for (final r in (rows as List)) {
         final c = ((r as Map)['category'] ?? '').toString().trim();
-        if (c.isNotEmpty) set.add(c);
+        // Kategori dari sync masih berupa ID Shopee (mis. "100046").
+        // Sembunyikan sampai sync mengirim nama yang bisa dibaca pengguna.
+        if (c.isNotEmpty && !RegExp(r'^\d+$').hasMatch(c)) set.add(c);
       }
       return Result.ok(set.toList());
     } catch (e) {
@@ -83,11 +84,8 @@ class ProductRepositorySupabase implements ProductRepository {
   @override
   Future<Result<Product?>> getProductById(String id) async {
     try {
-      final row = await _client
-          .from('products')
-          .select()
-          .eq('id', id)
-          .maybeSingle();
+      final row =
+          await _client.from('products').select().eq('id', id).maybeSingle();
       if (row == null) return const Result.ok(null);
       return Result.ok(Product.fromSupabase(Map<String, dynamic>.from(row)));
     } catch (_) {
@@ -96,8 +94,6 @@ class ProductRepositorySupabase implements ProductRepository {
   }
 
   /// Escape wildcard LIKE agar cari '%', '_' literal aman.
-  String _escapeLike(String s) => s
-      .replaceAll(r'\', r'\\')
-      .replaceAll('%', r'\%')
-      .replaceAll('_', r'\_');
+  String _escapeLike(String s) =>
+      s.replaceAll(r'\', r'\\').replaceAll('%', r'\%').replaceAll('_', r'\_');
 }

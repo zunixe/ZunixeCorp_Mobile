@@ -62,8 +62,17 @@ sealed class Failure implements Exception {
       return NetworkFailure(msg);
     }
     if (e is AuthFailureMarker) return AuthFailure(msg);
+    // Jangan bocorkan detail teknis (stack trace/tipe exception) ke UI.
+    if (_looksTechnical(msg)) return UnknownFailure(fallback);
     return ServerFailure(msg);
   }
+
+  static bool _looksTechnical(String s) =>
+      s.contains('Exception:') ||
+      s.contains('Error:') ||
+      s.startsWith('Instance of') ||
+      s.contains('#0 ') ||
+      s.contains('package:');
 
   /// Ambil pesan semantik dari berbagai bentuk exception.
   static String? _extractMessage(Object e) {

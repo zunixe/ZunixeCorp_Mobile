@@ -26,8 +26,7 @@ void main() {
               authRepo ?? mockAuthRepo(user: buildUser(id: 'u1'))),
         ],
         child: MaterialApp(
-          home: CartScreen(
-              onSwitchToProduk: onSwitchToProduk ?? () {}),
+          home: CartScreen(onSwitchToProduk: onSwitchToProduk ?? () {}),
         ),
       ),
     );
@@ -35,8 +34,7 @@ void main() {
 
   MockCartRepository repoWithItems(List<CartItem> items) {
     final cr = MockCartRepository();
-    when(() => cr.fetchCart(any()))
-        .thenAnswer((_) async => Result.ok(items));
+    when(() => cr.fetchCart(any())).thenAnswer((_) async => Result.ok(items));
     when(() => cr.updateQuantity(any(), any()))
         .thenAnswer((_) async => const Result.ok(null));
     when(() => cr.removeItem(any()))
@@ -61,8 +59,8 @@ void main() {
 
   testWidgets('error + kosong -> pesan + tombol Coba Lagi', (tester) async {
     final cr = MockCartRepository();
-    when(() => cr.fetchCart(any())).thenAnswer(
-      (_) async => const Result.err(ServerFailure('x')));
+    when(() => cr.fetchCart(any()))
+        .thenAnswer((_) async => const Result.err(ServerFailure('x')));
     await pump(tester, cartRepo: cr);
     await tester.pump();
     await tester.pump();
@@ -80,8 +78,8 @@ void main() {
       ProviderScope(
         overrides: [
           cartRepositoryProvider.overrideWithValue(cr),
-          authRepositoryProvider.overrideWithValue(
-              mockAuthRepo(user: buildUser(id: 'u1'))),
+          authRepositoryProvider
+              .overrideWithValue(mockAuthRepo(user: buildUser(id: 'u1'))),
         ],
         child: MaterialApp(
           home: CartScreen(onSwitchToProduk: () => switched = true),
@@ -97,8 +95,7 @@ void main() {
 
   testWidgets('list item + total tampil', (tester) async {
     final cr = repoWithItems([
-      buildCartItem(
-          id: 'a', productName: 'Sensor', price: 25000, quantity: 2),
+      buildCartItem(id: 'a', productName: 'Sensor', price: 25000, quantity: 2),
       buildCartItem(id: 'b', productName: 'Kabel', price: 10000, quantity: 1),
     ]);
     await pump(tester, cartRepo: cr);

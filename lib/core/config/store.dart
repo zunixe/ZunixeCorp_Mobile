@@ -10,8 +10,7 @@ class StoreConfig {
   static const accountNumber = '';
   static const accountHolder = '';
 
-  static bool get hasBank =>
-      bankName.isNotEmpty && accountNumber.isNotEmpty;
+  static bool get hasBank => bankName.isNotEmpty && accountNumber.isNotEmpty;
 
   /// Link WA dengan pesan konfirmasi transfer terisi otomatis.
   static String waConfirmUrl(String orderCode, int total) {

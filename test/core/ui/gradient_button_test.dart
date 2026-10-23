@@ -78,8 +78,7 @@ void main() {
           matching: find.byType(SizedBox),
         ))
         .toList();
-    final hasInfinity = sized.any(
-        (s) => s.width == double.infinity);
+    final hasInfinity = sized.any((s) => s.width == double.infinity);
     expect(hasInfinity, isFalse);
   });
 }

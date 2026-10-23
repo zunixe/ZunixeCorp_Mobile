@@ -1,0 +1,7 @@
+# Salin ke android/key.properties (gitignored) sebelum build rilis.
+# Buat keystore: keytool -genkey -v -keystore upload-keystore.jks \
+#   -keyalg RSA -keysize 2048 -validity 10000 -alias upload
+storePassword=<password-keystore>
+keyPassword=<password-key>
+keyAlias=upload
+storeFile=../upload-keystore.jks

@@ -18,8 +18,7 @@ class SocialAuthButtons extends ConsumerStatefulWidget {
   });
 
   @override
-  ConsumerState<SocialAuthButtons> createState() =>
-      _SocialAuthButtonsState();
+  ConsumerState<SocialAuthButtons> createState() => _SocialAuthButtonsState();
 }
 
 class _SocialAuthButtonsState extends ConsumerState<SocialAuthButtons> {
@@ -50,8 +49,7 @@ class _SocialAuthButtonsState extends ConsumerState<SocialAuthButtons> {
     setState(() => _pending = null);
     ScaffoldMessenger.of(context).showSnackBar(
       const SnackBar(
-          content: Text('Login dibatalkan.'),
-          backgroundColor: AppColors.brand),
+          content: Text('Login dibatalkan.'), backgroundColor: AppColors.brand),
     );
   }
 
@@ -130,8 +128,7 @@ class _SocialAuthButtonsState extends ConsumerState<SocialAuthButtons> {
           busy: _pending == 'facebook',
           onTap: busy
               ? null
-              : () =>
-                  _go(notifier.signInWithFacebook, 'facebook', 'Facebook'),
+              : () => _go(notifier.signInWithFacebook, 'facebook', 'Facebook'),
         ),
         if (busy)
           TextButton(

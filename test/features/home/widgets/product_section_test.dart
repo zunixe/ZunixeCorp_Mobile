@@ -26,8 +26,7 @@ void main() {
         GoRoute(
           path: AppRoutes.productDetail,
           name: AppRouteNames.productDetail,
-          builder: (_, state) =>
-              Text('DETAIL ${state.pathParameters['id']}'),
+          builder: (_, state) => Text('DETAIL ${state.pathParameters['id']}'),
         ),
       ],
     );

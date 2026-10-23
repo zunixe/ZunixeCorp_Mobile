@@ -66,7 +66,8 @@ void main() {
     await openDrawer(tester);
 
     expect(find.text('zunixe'), findsOneWidget);
-    expect(find.text('Mitra Terpercaya Inovasi Elektronika Anda'), findsOneWidget);
+    expect(
+        find.text('Mitra Terpercaya Inovasi Elektronika Anda'), findsOneWidget);
     expect(find.text('Keluar'), findsNothing);
   });
 

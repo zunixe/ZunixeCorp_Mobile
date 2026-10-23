@@ -58,6 +58,7 @@ void main() {
       client.stubFrom('products', returning: <Map<String, dynamic>>[
         <String, dynamic>{'category': 'Elektronik'},
         <String, dynamic>{'category': 'Elektronik'},
+        <String, dynamic>{'category': '100046'},
         <String, dynamic>{'category': ''},
       ]);
       final repo = ProductRepositorySupabase(client: client);
@@ -115,7 +116,8 @@ void main() {
 
     test('search kosong -> tanpa filter ilike', () async {
       final client = MockSupabaseTestClient();
-      final fb = client.stubFrom('products', returning: <Map<String, dynamic>>[]);
+      final fb =
+          client.stubFrom('products', returning: <Map<String, dynamic>>[]);
       final repo = ProductRepositorySupabase(client: client);
 
       await repo.getProducts(search: '   ');
@@ -125,23 +127,23 @@ void main() {
 
     test('search terisi -> ilike name + escape wildcard', () async {
       final client = MockSupabaseTestClient();
-      final fb = client.stubFrom('products', returning: <Map<String, dynamic>>[]);
+      final fb =
+          client.stubFrom('products', returning: <Map<String, dynamic>>[]);
       final repo = ProductRepositorySupabase(client: client);
 
       await repo.getProducts(search: '10%_x');
 
       expect(fb.wasCalled('ilike'), isTrue);
       expect(fb.argOf('ilike'), 'name');
-      final pattern = fb.calls
-          .firstWhere((c) => c.method == 'ilike')
-          .args
-          .last as String;
+      final pattern =
+          fb.calls.firstWhere((c) => c.method == 'ilike').args.last as String;
       expect(pattern, r'%10\%\_x%');
     });
 
     test('category terisi -> filter eq category', () async {
       final client = MockSupabaseTestClient();
-      final fb = client.stubFrom('products', returning: <Map<String, dynamic>>[]);
+      final fb =
+          client.stubFrom('products', returning: <Map<String, dynamic>>[]);
       final repo = ProductRepositorySupabase(client: client);
 
       await repo.getProducts(category: 'Sensor');
@@ -155,7 +157,8 @@ void main() {
 
     test('sort cheapest -> order price ascending', () async {
       final client = MockSupabaseTestClient();
-      final fb = client.stubFrom('products', returning: <Map<String, dynamic>>[]);
+      final fb =
+          client.stubFrom('products', returning: <Map<String, dynamic>>[]);
       final repo = ProductRepositorySupabase(client: client);
 
       await repo.getProducts(sort: ProductSort.cheapest);
@@ -167,7 +170,8 @@ void main() {
 
     test('sort priciest -> order price descending', () async {
       final client = MockSupabaseTestClient();
-      final fb = client.stubFrom('products', returning: <Map<String, dynamic>>[]);
+      final fb =
+          client.stubFrom('products', returning: <Map<String, dynamic>>[]);
       final repo = ProductRepositorySupabase(client: client);
 
       await repo.getProducts(sort: ProductSort.priciest);
@@ -179,7 +183,8 @@ void main() {
 
     test('sort newest -> order updated_at descending', () async {
       final client = MockSupabaseTestClient();
-      final fb = client.stubFrom('products', returning: <Map<String, dynamic>>[]);
+      final fb =
+          client.stubFrom('products', returning: <Map<String, dynamic>>[]);
       final repo = ProductRepositorySupabase(client: client);
 
       await repo.getProducts(sort: ProductSort.newest);
@@ -191,7 +196,8 @@ void main() {
 
     test('range memakai offset + limit', () async {
       final client = MockSupabaseTestClient();
-      final fb = client.stubFrom('products', returning: <Map<String, dynamic>>[]);
+      final fb =
+          client.stubFrom('products', returning: <Map<String, dynamic>>[]);
       final repo = ProductRepositorySupabase(client: client);
 
       await repo.getProducts(offset: 10, limit: 5);

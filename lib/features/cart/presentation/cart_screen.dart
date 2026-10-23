@@ -58,7 +58,8 @@ class CartScreen extends ConsumerWidget {
             ),
             child: Column(
               children: [
-                const Icon(Icons.cloud_off_outlined, size: 56, color: AppColors.muted),
+                const Icon(Icons.cloud_off_outlined,
+                    size: 56, color: AppColors.muted),
                 const SizedBox(height: 12),
                 Text(
                   cart.error!,
@@ -103,9 +104,9 @@ class CartScreen extends ConsumerWidget {
           label: 'Urungkan',
           textColor: AppColors.pinkLight,
           onPressed: () => ref.read(cartNotifierProvider.notifier).addToCart(
-            productId: item.productId,
-            quantity: item.quantity,
-          ),
+                productId: item.productId,
+                quantity: item.quantity,
+              ),
         ),
       ),
     );
@@ -123,11 +124,15 @@ class CartScreen extends ConsumerWidget {
           ),
           child: Column(
             children: [
-              Icon(Icons.shopping_cart_outlined, size: 64, color: Colors.grey[300]),
+              Icon(Icons.shopping_cart_outlined,
+                  size: 64, color: Colors.grey[300]),
               const SizedBox(height: 16),
               const Text(
                 'Keranjang Kosong',
-                style: TextStyle(fontSize: 18, fontWeight: FontWeight.w600, color: AppColors.ink),
+                style: TextStyle(
+                    fontSize: 18,
+                    fontWeight: FontWeight.w600,
+                    color: AppColors.ink),
               ),
               const SizedBox(height: 8),
               Text(
@@ -154,81 +159,101 @@ class CartScreen extends ConsumerWidget {
       padding: const EdgeInsets.all(16),
       children: [
         ...cart.items.map((item) => Dismissible(
-          key: Key(item.id),
-          direction: DismissDirection.endToStart,
-          background: Container(
-            alignment: Alignment.centerRight,
-            padding: const EdgeInsets.only(right: 20),
-            decoration: BoxDecoration(
-              color: Colors.red,
-              borderRadius: BorderRadius.circular(12),
-            ),
-            child: const Icon(Icons.delete, color: Colors.white),
-          ),
-          onDismissed: (_) => _dismissItem(context, ref, item),
-          child: Container(
-            margin: const EdgeInsets.only(bottom: 8),
-            padding: const EdgeInsets.all(12),
-            decoration: BoxDecoration(
-              color: Colors.white,
-              borderRadius: BorderRadius.circular(12),
-            ),
-            child: Row(
-              children: [
-                ClipRRect(
-                  borderRadius: BorderRadius.circular(8),
-                  child: ProductImage(
-                    url: item.productImage,
-                    width: 64,
-                    height: 64,
-                    cacheWidth: 200,
-                    iconSize: 28,
-                  ),
+              key: Key(item.id),
+              direction: DismissDirection.endToStart,
+              background: Container(
+                alignment: Alignment.centerRight,
+                padding: const EdgeInsets.only(right: 20),
+                decoration: BoxDecoration(
+                  color: Colors.red,
+                  borderRadius: BorderRadius.circular(12),
                 ),
-                const SizedBox(width: 12),
-                Expanded(
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      Text(item.productName, maxLines: 2, overflow: TextOverflow.ellipsis, style: const TextStyle(fontSize: 13)),
-                      const SizedBox(height: 4),
-                      Text(
-                        formatRupiah(item.price.round()),
-                        style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: AppColors.brand),
-                      ),
-                    ],
-                  ),
+                child: const Icon(Icons.delete, color: Colors.white),
+              ),
+              onDismissed: (_) => _dismissItem(context, ref, item),
+              child: Container(
+                margin: const EdgeInsets.only(bottom: 8),
+                padding: const EdgeInsets.all(12),
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.circular(12),
                 ),
-                Row(
+                child: Row(
                   children: [
-                    IconButton(
-                      icon: const Icon(Icons.remove_circle_outline, color: AppColors.brand, size: 28),
-                      onPressed: () => ref.read(cartNotifierProvider.notifier).updateQuantity(item.id, item.quantity - 1),
-                      padding: EdgeInsets.zero,
-                      constraints: const BoxConstraints(minWidth: 32, minHeight: 32),
-                    ),
-                    Text('${item.quantity}', style: const TextStyle(fontSize: 14, fontWeight: FontWeight.w600)),
-                    IconButton(
-                      icon: Icon(
-                        Icons.add_circle_outline,
-                        color: item.quantity >= item.stock
-                            ? Colors.grey[300]
-                            : AppColors.brand,
-                        size: 28,
+                    ClipRRect(
+                      borderRadius: BorderRadius.circular(8),
+                      child: ProductImage(
+                        url: item.productImage,
+                        width: 64,
+                        height: 64,
+                        cacheWidth: 200,
+                        iconSize: 28,
                       ),
-                      // Cap di stok terkini (server tetap validasi ulang saat checkout).
-                      onPressed: item.quantity >= item.stock
-                          ? null
-                          : () => ref.read(cartNotifierProvider.notifier).updateQuantity(item.id, item.quantity + 1),
-                      padding: EdgeInsets.zero,
-                      constraints: const BoxConstraints(minWidth: 32, minHeight: 32),
+                    ),
+                    const SizedBox(width: 12),
+                    Expanded(
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.start,
+                        children: [
+                          Text(item.productName,
+                              maxLines: 2,
+                              overflow: TextOverflow.ellipsis,
+                              style: const TextStyle(fontSize: 13)),
+                          const SizedBox(height: 4),
+                          Text(
+                            formatRupiah(item.price.round()),
+                            style: const TextStyle(
+                                fontSize: 14,
+                                fontWeight: FontWeight.bold,
+                                color: AppColors.brand),
+                          ),
+                        ],
+                      ),
+                    ),
+                    Row(
+                      children: [
+                        IconButton(
+                          icon: const Icon(Icons.remove_circle_outline,
+                              color: AppColors.brand, size: 28),
+                          tooltip: 'Kurangi jumlah',
+                          onPressed: cart.isUpdating(item.id)
+                              ? null
+                              : () => ref
+                                  .read(cartNotifierProvider.notifier)
+                                  .updateQuantity(item.id, item.quantity - 1),
+                          padding: EdgeInsets.zero,
+                          constraints:
+                              const BoxConstraints(minWidth: 44, minHeight: 44),
+                        ),
+                        Text('${item.quantity}',
+                            style: const TextStyle(
+                                fontSize: 14, fontWeight: FontWeight.w600)),
+                        IconButton(
+                          icon: Icon(
+                            Icons.add_circle_outline,
+                            color: item.quantity >= item.stock
+                                ? Colors.grey[300]
+                                : AppColors.brand,
+                            size: 28,
+                          ),
+                          tooltip: 'Tambah jumlah',
+                          // Cap di stok terkini (server tetap validasi ulang saat checkout).
+                          onPressed: cart.isUpdating(item.id) ||
+                                  item.quantity >= item.stock
+                              ? null
+                              : () => ref
+                                  .read(cartNotifierProvider.notifier)
+                                  .updateQuantity(item.id, item.quantity + 1),
+                          padding: EdgeInsets.zero,
+                          constraints:
+                              const BoxConstraints(minWidth: 44, minHeight: 44),
+                        ),
+                      ],
                     ),
                   ],
                 ),
-              ],
-            ),
-          ),
-        )),
+              ),
+            )),
         const SizedBox(height: 16),
         Container(
           padding: const EdgeInsets.all(16),
@@ -239,13 +264,17 @@ class CartScreen extends ConsumerWidget {
           child: Row(
             mainAxisAlignment: MainAxisAlignment.spaceBetween,
             children: [
-              const Text('Total', style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600)),
+              const Text('Total',
+                  style: TextStyle(fontSize: 16, fontWeight: FontWeight.w600)),
               Flexible(
                 child: Text(
                   formatRupiah(cart.totalPrice),
                   maxLines: 1,
                   overflow: TextOverflow.ellipsis,
-                  style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: AppColors.brand),
+                  style: const TextStyle(
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold,
+                      color: AppColors.brand),
                 ),
               ),
             ],
@@ -256,7 +285,9 @@ class CartScreen extends ConsumerWidget {
           label: 'Checkout',
           height: 48,
           fontSize: 16,
-          onPressed: cart.items.isEmpty ? null : () => context.push(AppRoutes.checkout),
+          onPressed: cart.items.isEmpty
+              ? null
+              : () => context.push(AppRoutes.checkout),
         ),
         const SizedBox(height: 32),
       ],

@@ -27,8 +27,7 @@ void main() {
     expect(find.text('Lanjutkan dengan Facebook'), findsOneWidget);
   });
 
-  testWidgets('tap Google -> signInWithOAuth google dipanggil',
-      (tester) async {
+  testWidgets('tap Google -> signInWithOAuth google dipanggil', (tester) async {
     final repo = mockAuthRepo();
     when(() => repo.signInWithOAuth(
           provider: any(named: 'provider'),
@@ -79,8 +78,7 @@ void main() {
   });
 
   testWidgets('dividerLabel kustom', (tester) async {
-    await pump(tester, mockAuthRepo(),
-        dividerLabel: 'atau daftar dengan');
+    await pump(tester, mockAuthRepo(), dividerLabel: 'atau daftar dengan');
     expect(find.text('atau daftar dengan'), findsOneWidget);
   });
 }

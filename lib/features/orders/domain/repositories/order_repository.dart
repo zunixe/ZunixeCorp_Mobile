@@ -1,3 +1,5 @@
+import 'dart:typed_data';
+
 import 'package:zunixe_corp_mobile/core/result.dart';
 import 'package:zunixe_corp_mobile/features/orders/domain/entities/order.dart';
 
@@ -19,4 +21,12 @@ abstract class OrderRepository {
 
   /// Batalkan pesanan milik sendiri (stok dikembalikan server).
   Future<Result<void>> cancelOrder(String orderId);
+
+  /// Unggah bukti transfer ke Storage lalu tandai order menunggu verifikasi.
+  Future<Result<void>> submitPaymentProof({
+    required String orderId,
+    required String userId,
+    required Uint8List bytes,
+    required String fileExtension,
+  });
 }

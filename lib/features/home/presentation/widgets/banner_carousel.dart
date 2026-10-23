@@ -1,14 +1,30 @@
 import 'package:flutter/material.dart';
 import 'package:zunixe_corp_mobile/core/theme/app_colors.dart';
 
-/// Carousel banner promo home (stateful: indikator halaman aktif).
+/// Carousel banner promo home. Memakai kartu lokal (bukan hotlink Unsplash)
+/// agar tidak bergantung pada jaringan/gambar pihak ketiga.
 class BannerCarousel extends StatefulWidget {
   const BannerCarousel({super.key});
 
   static const banners = [
-    'https://images.unsplash.com/photo-1603732551681-2e91159b9dc2?w=600&h=300&fit=crop',
-    'https://images.unsplash.com/photo-1651231960369-3c31ab2a490c?w=600&h=300&fit=crop',
-    'https://images.unsplash.com/photo-1649959265391-8a1de884248a?w=600&h=300&fit=crop',
+    (
+      title: 'Gratis Ongkir',
+      subtitle: 'Ke seluruh Indonesia',
+      icon: Icons.local_shipping,
+      colors: [AppColors.brand, AppColors.brandDark],
+    ),
+    (
+      title: 'Komponen IoT Pilihan',
+      subtitle: 'ESP32, Arduino, sensor & modul',
+      icon: Icons.memory,
+      colors: [AppColors.info, Color(0xFF0B3C78)],
+    ),
+    (
+      title: 'Butuh Bantuan?',
+      subtitle: 'Chat tim support via WhatsApp',
+      icon: Icons.chat,
+      colors: [AppColors.whatsapp, AppColors.success],
+    ),
   ];
 
   @override
@@ -30,27 +46,46 @@ class _BannerCarouselState extends State<BannerCarousel> {
             child: PageView.builder(
               onPageChanged: (index) => setState(() => _bannerIndex = index),
               itemCount: BannerCarousel.banners.length,
-              itemBuilder: (context, index) => Container(
-                margin: const EdgeInsets.symmetric(horizontal: 4),
-                clipBehavior: Clip.hardEdge,
-                decoration:
-                    BoxDecoration(borderRadius: BorderRadius.circular(12)),
-                child: Image.network(BannerCarousel.banners[index],
-                    fit: BoxFit.cover,
-                    errorBuilder: (ctx, err, stack) => Container(
-                          decoration: const BoxDecoration(
-                            borderRadius:
-                                BorderRadius.all(Radius.circular(12)),
-                            gradient: LinearGradient(colors: [
-                              AppColors.brand,
-                              AppColors.brandDark
-                            ]),
-                          ),
-                          child: const Center(
-                              child: Icon(Icons.image,
-                                  color: Colors.white70, size: 48)),
-                        )),
-              ),
+              itemBuilder: (context, index) {
+                final banner = BannerCarousel.banners[index];
+                return Container(
+                  margin: const EdgeInsets.symmetric(horizontal: 4),
+                  clipBehavior: Clip.hardEdge,
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(12),
+                    gradient: LinearGradient(
+                      colors: banner.colors,
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
+                    ),
+                  ),
+                  padding: const EdgeInsets.all(20),
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    children: [
+                      Icon(banner.icon, color: Colors.white, size: 40),
+                      const SizedBox(height: 12),
+                      Text(
+                        banner.title,
+                        style: const TextStyle(
+                          color: Colors.white,
+                          fontSize: 22,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      const SizedBox(height: 4),
+                      Text(
+                        banner.subtitle,
+                        style: TextStyle(
+                          color: Colors.white.withValues(alpha: 0.9),
+                          fontSize: 13,
+                        ),
+                      ),
+                    ],
+                  ),
+                );
+              },
             ),
           ),
           const SizedBox(height: 12),

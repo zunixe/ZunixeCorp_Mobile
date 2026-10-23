@@ -18,7 +18,8 @@ class AuthModule extends FeatureModule {
         GoRoute(
           path: AppRoutes.login,
           name: AppRouteNames.login,
-          builder: (context, state) => const LoginScreen(),
+          builder: (context, state) =>
+              LoginScreen(from: state.uri.queryParameters['from']),
         ),
         GoRoute(
           path: AppRoutes.account,
@@ -28,7 +29,8 @@ class AuthModule extends FeatureModule {
         GoRoute(
           path: AppRoutes.register,
           name: AppRouteNames.register,
-          builder: (context, state) => const RegisterScreen(),
+          builder: (context, state) =>
+              RegisterScreen(from: state.uri.queryParameters['from']),
         ),
         GoRoute(
           path: AppRoutes.resetPassword,

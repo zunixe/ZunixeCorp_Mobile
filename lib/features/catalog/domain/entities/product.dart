@@ -36,7 +36,10 @@ class Product {
     } else if (raw is String && raw.isNotEmpty) {
       try {
         final decoded = raw.replaceAll(RegExp(r'^\[|\]$'), '').split(',');
-        images = decoded.map((s) => s.trim().replaceAll('"', '')).where((s) => s.isNotEmpty).toList();
+        images = decoded
+            .map((s) => s.trim().replaceAll('"', ''))
+            .where((s) => s.isNotEmpty)
+            .toList();
       } catch (_) {}
     }
 
@@ -54,19 +57,25 @@ class Product {
     );
   }
 
-  factory Product.fromJson(Map<String, dynamic> json) {    List<String> images = [];
-    final rawImages = json['image_urls'] ?? json['imageList'] ?? json['image_list'];
+  factory Product.fromJson(Map<String, dynamic> json) {
+    List<String> images = [];
+    final rawImages =
+        json['image_urls'] ?? json['imageList'] ?? json['image_list'];
     if (rawImages is List) {
-      images = rawImages.map((e) => e.toString()).where((s) => s.isNotEmpty).toList();
+      images = rawImages
+          .map((e) => e.toString())
+          .where((s) => s.isNotEmpty)
+          .toList();
     } else if (rawImages is String && rawImages.isNotEmpty) {
       images = [rawImages];
     }
     final imageUrl = images.isNotEmpty ? images.first : '';
 
     final price = _toDouble(json['price']);
-    final originalPrice = json.containsKey('originalPrice') || json.containsKey('original_price')
-        ? _toDouble(json['originalPrice'] ?? json['original_price'])
-        : price;
+    final originalPrice =
+        json.containsKey('originalPrice') || json.containsKey('original_price')
+            ? _toDouble(json['originalPrice'] ?? json['original_price'])
+            : price;
 
     return Product(
       id: (json['id'] ?? json['itemId'] ?? '').toString(),
@@ -87,7 +96,10 @@ class Product {
 double _toDouble(dynamic v) {
   if (v is num) return v.toDouble();
   if (v is String) {
-    final cleaned = v.replaceAll(RegExp(r'[^0-9.,-]'), '').replaceAll('.', '').replaceAll(',', '.');
+    final cleaned = v
+        .replaceAll(RegExp(r'[^0-9.,-]'), '')
+        .replaceAll('.', '')
+        .replaceAll(',', '.');
     return double.tryParse(cleaned) ?? 0;
   }
   return 0;

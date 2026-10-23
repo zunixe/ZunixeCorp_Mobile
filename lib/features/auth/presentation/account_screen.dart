@@ -42,14 +42,18 @@ class AccountScreen extends ConsumerWidget {
                     backgroundColor: AppColors.brand,
                     child: Text(
                       auth.displayName[0].toUpperCase(),
-                      style: const TextStyle(fontSize: 28, color: Colors.white, fontWeight: FontWeight.bold),
+                      style: const TextStyle(
+                          fontSize: 28,
+                          color: Colors.white,
+                          fontWeight: FontWeight.bold),
                     ),
                   ),
                   const SizedBox(height: 16),
                   Text(
                     auth.displayName,
                     textAlign: TextAlign.center,
-                    style: const TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                    style: const TextStyle(
+                        fontSize: 20, fontWeight: FontWeight.bold),
                   ),
                   const SizedBox(height: 4),
                   Text(
@@ -94,10 +98,31 @@ class AccountScreen extends ConsumerWidget {
                         foregroundColor: AppColors.brand,
                         side: const BorderSide(color: AppColors.brand),
                         padding: const EdgeInsets.symmetric(vertical: 14),
-                        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                        shape: RoundedRectangleBorder(
+                            borderRadius: BorderRadius.circular(12)),
                       ),
-                      child: const Text('Keluar', style: TextStyle(fontSize: 16)),
+                      child:
+                          const Text('Keluar', style: TextStyle(fontSize: 16)),
                     ),
+                  ),
+                  const SizedBox(height: 8),
+                  SizedBox(
+                    width: double.infinity,
+                    child: TextButton(
+                      onPressed: () => _confirmDeleteAccount(context, ref),
+                      style: TextButton.styleFrom(
+                        foregroundColor: Colors.red,
+                        padding: const EdgeInsets.symmetric(vertical: 14),
+                      ),
+                      child: const Text('Hapus Akun',
+                          style: TextStyle(fontSize: 15)),
+                    ),
+                  ),
+                  Text(
+                    'Menghapus akun akan menghapus profil, keranjang, dan '
+                    'riwayat pesanan secara permanen.',
+                    textAlign: TextAlign.center,
+                    style: TextStyle(fontSize: 11, color: Colors.grey[500]),
                   ),
                 ],
               ),
@@ -121,8 +146,7 @@ class AccountScreen extends ConsumerWidget {
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx, false),
-            child: const Text('Batal',
-                style: TextStyle(color: AppColors.grey)),
+            child: const Text('Batal', style: TextStyle(color: AppColors.grey)),
           ),
           ElevatedButton(
             onPressed: () => Navigator.pop(ctx, true),
@@ -150,7 +174,56 @@ class AccountScreen extends ConsumerWidget {
     }
   }
 
-  Widget _menuTile(BuildContext context, {required IconData icon, required String title, required VoidCallback onTap}) {
+  Future<void> _confirmDeleteAccount(
+      BuildContext context, WidgetRef ref) async {
+    final notifier = ref.read(authNotifierProvider.notifier);
+    final messenger = ScaffoldMessenger.of(context);
+    final yes = await showDialog<bool>(
+      context: context,
+      builder: (ctx) => AlertDialog(
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+        title: const Text('Hapus akun permanen?',
+            style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold)),
+        content: const Text(
+          'Profil, keranjang, dan riwayat pesanan Anda akan dihapus dan '
+          'tidak dapat dikembalikan.',
+        ),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(ctx, false),
+            child: const Text('Batal', style: TextStyle(color: AppColors.grey)),
+          ),
+          ElevatedButton(
+            onPressed: () => Navigator.pop(ctx, true),
+            style: ElevatedButton.styleFrom(
+              backgroundColor: Colors.red,
+              foregroundColor: Colors.white,
+              shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(10)),
+            ),
+            child: const Text('Hapus Akun'),
+          ),
+        ],
+      ),
+    );
+    if (yes != true || !context.mounted) return;
+    final ok = await notifier.deleteAccount();
+    if (!context.mounted) return;
+    messenger.showSnackBar(
+      SnackBar(
+        content: Text(ok
+            ? 'Akun berhasil dihapus.'
+            : (ref.read(authNotifierProvider).error ??
+                'Gagal menghapus akun.')),
+        backgroundColor: ok ? AppColors.success : Colors.red,
+      ),
+    );
+  }
+
+  Widget _menuTile(BuildContext context,
+      {required IconData icon,
+      required String title,
+      required VoidCallback onTap}) {
     // Material (bukan Container berwarna) agar ink splash ListTile terlihat
     // dan tak memicu assertion debug Flutter.
     return Material(

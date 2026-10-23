@@ -71,7 +71,8 @@ class FakeFilterBuilder<T> extends Fake
         .toString()
         .replaceFirst('Symbol("', '')
         .replaceAll('")', '');
-    calls.add(RecordedCall(name, invocation.positionalArguments.toList(), invocation.namedArguments));
+    calls.add(RecordedCall(name, invocation.positionalArguments.toList(),
+        invocation.namedArguments));
     if (invocation.isMethod) {
       // maybeSingle/single mengubah tipe hasil menjadi satu baris
       // (PostgrestMap?) — kembalikan filter baru bertipe sesuai agar cast
@@ -114,7 +115,8 @@ class FakeQueryBuilder implements SupabaseQueryBuilder {
         .toString()
         .replaceFirst('Symbol("', '')
         .replaceAll('")', '');
-    calls.add(RecordedCall(name, invocation.positionalArguments.toList(), invocation.namedArguments));
+    calls.add(RecordedCall(name, invocation.positionalArguments.toList(),
+        invocation.namedArguments));
     return filter;
   }
 }
@@ -132,8 +134,8 @@ class MockSupabaseTestClient extends Mock implements SupabaseClient {
   /// [returning] saat di-await, atau melempar [throws].
   FakeFilterBuilder<PostgrestList> stubFrom(String table,
       {Object? returning, Object? throws}) {
-    final fb = FakeFilterBuilder<PostgrestList>(
-        resolve: returning, throws: throws);
+    final fb =
+        FakeFilterBuilder<PostgrestList>(resolve: returning, throws: throws);
     _fromStubs[table] = fb;
     when(() => from(table)).thenAnswer((_) {
       final qb = FakeQueryBuilder(fb);
@@ -153,7 +155,6 @@ class MockSupabaseTestClient extends Mock implements SupabaseClient {
     return fb;
   }
 
-  FakeFilterBuilder<PostgrestList>? fromStub(String table) =>
-      _fromStubs[table];
+  FakeFilterBuilder<PostgrestList>? fromStub(String table) => _fromStubs[table];
   FakeFilterBuilder<dynamic>? rpcStub(String fn) => _rpcStubs[fn];
 }

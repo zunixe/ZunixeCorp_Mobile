@@ -76,7 +76,11 @@ void main() {
 
   testWidgets('showBack -> tombol kembali', (tester) async {
     await pump(tester,
-        showBack: true, title: 'Detail', showSearch: false, showCart: false, showProfile: false);
+        showBack: true,
+        title: 'Detail',
+        showSearch: false,
+        showCart: false,
+        showProfile: false);
     expect(find.byIcon(Icons.arrow_back), findsOneWidget);
     expect(find.text('Detail'), findsOneWidget);
   });

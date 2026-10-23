@@ -34,6 +34,9 @@ abstract class AuthRepository {
 
   Future<void> signOut();
 
+  /// Hapus akun beserta data terkait (RPC `delete_account` di server).
+  Future<void> deleteAccount();
+
   /// Profil publik (nama + telepon) untuk prefill checkout.
   /// Mengembalikan `null` bila belum ada.
   Future<({String fullName, String phone})?> getProfile(String userId);

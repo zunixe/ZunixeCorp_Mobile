@@ -35,8 +35,8 @@ void main() {
       // R1: core -> features/app
       if (area == 'core' &&
           (tArea == 'app' || (tArea?.startsWith('features/') ?? false))) {
-        violations.add(
-            '$rel  →  $target   [core tidak boleh impor features/app]');
+        violations
+            .add('$rel  →  $target   [core tidak boleh impor features/app]');
       }
 
       // R2: features -> app
@@ -49,14 +49,13 @@ void main() {
         final feature = tArea!.substring('features/'.length);
         final barrel = 'features/$feature/$feature.dart';
         if (target != barrel) {
-          violations.add(
-              '$rel  →  $target   [lintas-fitur wajib barrel: $barrel]');
+          violations
+              .add('$rel  →  $target   [lintas-fitur wajib barrel: $barrel]');
         }
       }
 
       // R5: domain -> data/presentation
-      if (layer == 'domain' &&
-          (tLayer == 'data' || tLayer == 'presentation')) {
+      if (layer == 'domain' && (tLayer == 'data' || tLayer == 'presentation')) {
         violations.add('$rel  →  $target   [domain tidak boleh impor $tLayer]');
       }
 
@@ -75,7 +74,8 @@ void main() {
     return;
   }
 
-  stderr.writeln('check_imports: ${violations.length} pelanggaran batas modul:\n');
+  stderr.writeln(
+      'check_imports: ${violations.length} pelanggaran batas modul:\n');
   for (final v in violations) {
     stderr.writeln('  • $v');
   }

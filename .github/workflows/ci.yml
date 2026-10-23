@@ -6,6 +6,13 @@ on:
   pull_request:
     branches: [main, develop-flutter]
 
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
 jobs:
   analyze-and-test:
     name: Analyze, test & coverage
@@ -23,6 +30,9 @@ jobs:
 
       - name: Install dependencies
         run: flutter pub get
+
+      - name: Check formatting
+        run: dart format --output=none --set-exit-if-changed lib test tool
 
       - name: Analyze (fail on any issue)
         run: flutter analyze --fatal-infos --fatal-warnings
@@ -46,3 +56,41 @@ jobs:
           name: coverage-lcov
           path: coverage/lcov.info
           if-no-files-found: warn
+
+  build-android:
+    name: Build Android (release)
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Java
+        uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: '17'
+
+      - name: Setup Flutter
+        uses: subosito/flutter-action@v2
+        with:
+          channel: stable
+          cache: true
+
+      - name: Install dependencies
+        run: flutter pub get
+
+      # Tanpa key.properties, Gradle memakai debug key hanya bila
+      # ALLOW_DEBUG_SIGNING=true (lihat build.gradle.kts). Build ini
+      # memverifikasi manifest, Gradle, dan plugin tetap kompil.
+      - name: Build app bundle
+        env:
+          ALLOW_DEBUG_SIGNING: 'true'
+        run: flutter build appbundle --release
+
+      - name: Upload app bundle
+        uses: actions/upload-artifact@v4
+        with:
+          name: app-release-aab
+          path: build/app/outputs/bundle/release/app-release.aab
+          if-no-files-found: error

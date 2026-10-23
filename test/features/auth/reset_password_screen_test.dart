@@ -38,8 +38,8 @@ void main() {
     expect(find.text('Password Baru'), findsOneWidget);
     expect(find.text('Password baru'), findsOneWidget);
     expect(find.text('Konfirmasi password baru'), findsOneWidget);
-    expect(find.widgetWithText(GradientButton, 'Simpan Password'),
-        findsOneWidget);
+    expect(
+        find.widgetWithText(GradientButton, 'Simpan Password'), findsOneWidget);
   });
 
   testWidgets('validasi: kosong -> error', (tester) async {
@@ -99,8 +99,8 @@ void main() {
     await tester.pump();
     await tester.pump();
     verify(() => repo.updateUser(any())).called(1);
-    expect(find.text('Password berhasil diubah. Silakan masuk.'),
-        findsOneWidget);
+    expect(
+        find.text('Password berhasil diubah. Silakan masuk.'), findsOneWidget);
     verify(() => repo.signOut()).called(1);
     // Kembali ke home (MainShell) setelah sukses.
     controller.add(const AuthState(AuthChangeEvent.initialSession, null));

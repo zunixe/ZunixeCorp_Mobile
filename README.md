@@ -16,16 +16,22 @@ flutter run
 ## Test & lint
 
 ```bash
+dart format --output=none --set-exit-if-changed lib test tool
 flutter analyze                     # harus 0 issue
 dart run tool/check_imports.dart    # batas modul antar-fitur
 flutter test                        # seluruh unit + widget test
 flutter test --coverage             # + laporan coverage (coverage/lcov.info)
 bash tool/check_coverage.sh         # gate coverage baris >= 80%
+ALLOW_DEBUG_SIGNING=true flutter build appbundle --release   # verifikasi build
 ```
 
-CI (`.github/workflows/ci.yml`) menjalankan `analyze` + `test --coverage` untuk
-setiap push/PR ke `main` dan `develop-flutter`, dan **gagal bila coverage baris
-< 80%**.
+Build rilis memakai `android/key.properties`; tanpa file itu build gagal
+(kecuali `ALLOW_DEBUG_SIGNING=true` untuk verifikasi). Lihat `docs/RELEASE.md`.
+
+CI (`.github/workflows/ci.yml`) menjalankan cek format, `analyze`,
+`check_imports`, `test --coverage`, dan build Android (`appbundle`) untuk setiap
+push/PR ke `main` dan `develop-flutter`, serta **gagal bila coverage baris
+< 80%**. Tag `v*` memicu workflow Release yang mengunggah AAB sebagai artefak.
 
 ## Alur branch & rilis
 

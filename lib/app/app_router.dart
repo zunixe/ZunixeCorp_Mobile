@@ -46,7 +46,11 @@ final appRouterProvider = Provider<GoRouter>(
         final location = state.matchedLocation;
         const guarded = [AppRoutes.checkout, AppRoutes.orders];
         if (!loggedIn && guarded.contains(location)) {
-          return AppRoutes.login;
+          // Simpan tujuan agar pengguna kembali ke checkout/orders setelah login.
+          return Uri(
+            path: AppRoutes.login,
+            queryParameters: {'from': state.uri.toString()},
+          ).toString();
         }
         return null;
       },
@@ -54,8 +58,7 @@ final appRouterProvider = Provider<GoRouter>(
         GoRoute(
           path: AppRoutes.home,
           name: AppRouteNames.home,
-          builder: (context, state) =>
-              const AuthGate(child: MainShell()),
+          builder: (context, state) => const AuthGate(child: MainShell()),
         ),
         for (final module in appModules) ...module.routes,
       ],

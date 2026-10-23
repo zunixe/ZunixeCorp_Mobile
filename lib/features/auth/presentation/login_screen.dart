@@ -9,7 +9,10 @@ import 'package:zunixe_corp_mobile/core/router/app_routes.dart';
 /// Halaman login mandiri (di-push dari Orders / Checkout / tombol lain).
 /// OAuth Google/Facebook kembali via deep link → tutup otomatis ke MainShell.
 class LoginScreen extends ConsumerStatefulWidget {
-  const LoginScreen({super.key});
+  /// Tujuan setelah login berhasil (dari guard router).
+  final String? from;
+
+  const LoginScreen({super.key, this.from});
 
   @override
   ConsumerState<LoginScreen> createState() => _LoginScreenState();
@@ -24,21 +27,19 @@ class _LoginScreenState extends ConsumerState<LoginScreen> {
     ref.listen(authNotifierProvider, (prev, next) {
       if (!mounted) return;
       final wasOut = prev?.user == null;
-      if (wasOut &&
-          next.user != null &&
-          next.lastMethod != 'password') {
+      if (wasOut && next.user != null && next.lastMethod != 'password') {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
               content: Text('Login berhasil!'),
               backgroundColor: AppColors.success),
         );
-        context.go(AppRoutes.home);
+        context.go(AppRoutes.safeInternalPath(widget.from) ?? AppRoutes.home);
       }
     });
-    return const Scaffold(
+    return Scaffold(
       backgroundColor: Colors.white,
       body: SafeArea(
-        child: LoginForm(embedded: false),
+        child: LoginForm(embedded: false, from: widget.from),
       ),
     );
   }

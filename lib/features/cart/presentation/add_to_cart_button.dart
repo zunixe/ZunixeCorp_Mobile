@@ -66,7 +66,8 @@ class _AddToCartButtonState extends ConsumerState<AddToCartButton> {
         SnackBar(
           behavior: SnackBarBehavior.floating,
           margin: const EdgeInsets.fromLTRB(16, 0, 16, 24),
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+          shape:
+              RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
           backgroundColor: AppColors.dark,
           content: Text(
             '${widget.productName} masuk keranjang',
@@ -89,7 +90,8 @@ class _AddToCartButtonState extends ConsumerState<AddToCartButton> {
       final goLogin = await showDialog<bool>(
         context: context,
         builder: (dialogContext) => AlertDialog(
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
+          shape:
+              RoundedRectangleBorder(borderRadius: BorderRadius.circular(16)),
           title: const Row(
             children: [
               Icon(Icons.lock_outline, color: AppColors.brand),
@@ -104,14 +106,16 @@ class _AddToCartButtonState extends ConsumerState<AddToCartButton> {
           actions: [
             TextButton(
               onPressed: () => Navigator.pop(dialogContext, false),
-              child: const Text('Nanti', style: TextStyle(color: AppColors.grey)),
+              child:
+                  const Text('Nanti', style: TextStyle(color: AppColors.grey)),
             ),
             ElevatedButton(
               onPressed: () => Navigator.pop(dialogContext, true),
               style: ElevatedButton.styleFrom(
                 backgroundColor: AppColors.brand,
                 foregroundColor: Colors.white,
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+                shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(10)),
               ),
               child: const Text('Login'),
             ),
@@ -125,7 +129,8 @@ class _AddToCartButtonState extends ConsumerState<AddToCartButton> {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(
           behavior: SnackBarBehavior.floating,
-          shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
+          shape:
+              RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
           content: Text(ref.read(cartNotifierProvider).error ??
               'Gagal menambah ke keranjang'),
           backgroundColor: Colors.red,
@@ -170,7 +175,8 @@ class _AddToCartButtonState extends ConsumerState<AddToCartButton> {
   }
 
   Widget _buildCompact() {
-    final btn = _pill(height: 32, horizontalPad: 12, fontSize: 12.5, iconSize: 14);
+    final btn =
+        _pill(height: 32, horizontalPad: 12, fontSize: 12.5, iconSize: 14);
     if (widget.expand) {
       return SizedBox(width: double.infinity, child: btn);
     }
@@ -191,7 +197,8 @@ class _AddToCartButtonState extends ConsumerState<AddToCartButton> {
           borderRadius: BorderRadius.circular(height / 2),
           boxShadow: [
             BoxShadow(
-              color: (_done ? AppColors.success : AppColors.brand).withValues(alpha: 0.35),
+              color: (_done ? AppColors.success : AppColors.brand)
+                  .withValues(alpha: 0.35),
               blurRadius: 6,
               offset: const Offset(0, 2),
             ),
@@ -240,7 +247,8 @@ class _AddToCartButtonState extends ConsumerState<AddToCartButton> {
         borderRadius: BorderRadius.circular(14),
         boxShadow: [
           BoxShadow(
-            color: (_done ? AppColors.success : AppColors.brand).withValues(alpha: 0.40),
+            color: (_done ? AppColors.success : AppColors.brand)
+                .withValues(alpha: 0.40),
             blurRadius: 10,
             offset: const Offset(0, 4),
           ),
@@ -277,7 +285,8 @@ class _AddToCartButtonState extends ConsumerState<AddToCartButton> {
       return SizedBox(
         width: size,
         height: size,
-        child: const CircularProgressIndicator(strokeWidth: 2, color: Colors.white),
+        child: const CircularProgressIndicator(
+            strokeWidth: 2, color: Colors.white),
       );
     }
     if (_done) {

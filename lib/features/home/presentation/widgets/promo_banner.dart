@@ -17,11 +17,9 @@ class PromoBanner extends StatelessWidget {
           Icon(Icons.local_fire_department, color: Colors.white, size: 16),
           SizedBox(width: 6),
           Text(
-            'Get our latest products!',
+            'Dapatkan produk terbaru kami!',
             style: TextStyle(
-                color: Colors.white,
-                fontSize: 13,
-                fontWeight: FontWeight.w500),
+                color: Colors.white, fontSize: 13, fontWeight: FontWeight.w500),
           ),
         ],
       ),

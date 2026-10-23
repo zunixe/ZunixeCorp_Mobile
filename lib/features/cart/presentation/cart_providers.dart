@@ -19,6 +19,7 @@ class CartState {
     this.loading = false,
     this.error,
     this.needsLogin = false,
+    this.updatingIds = const {},
   });
 
   final List<CartItem> items;
@@ -27,6 +28,11 @@ class CartState {
 
   /// True bila kegagalan terakhir karena belum login (tampilkan dialog login).
   final bool needsLogin;
+
+  /// Item yang sedang menyimpan perubahan jumlah (cegah tap beruntun).
+  final Set<String> updatingIds;
+
+  bool isUpdating(String itemId) => updatingIds.contains(itemId);
 
   int get itemCount => items.fold(0, (sum, i) => sum + i.quantity);
   int get totalPrice =>
@@ -37,6 +43,7 @@ class CartState {
     bool? loading,
     String? error,
     bool? needsLogin,
+    Set<String>? updatingIds,
     bool clearError = false,
   }) {
     return CartState(
@@ -44,6 +51,7 @@ class CartState {
       loading: loading ?? this.loading,
       error: clearError ? null : (error ?? this.error),
       needsLogin: needsLogin ?? this.needsLogin,
+      updatingIds: updatingIds ?? this.updatingIds,
     );
   }
 }
@@ -60,8 +68,7 @@ class CartNotifier extends Notifier<CartState> {
 
   @override
   CartState build() {
-    final userId =
-        ref.watch(authNotifierProvider.select((s) => s.user?.id));
+    final userId = ref.watch(authNotifierProvider.select((s) => s.user?.id));
     if (userId != _lastUserId) {
       _lastUserId = userId;
       // Jadwalkan setelah build agar tak ada side-effect sinkron di build.
@@ -70,8 +77,7 @@ class CartNotifier extends Notifier<CartState> {
     return const CartState();
   }
 
-  bool get _isLoggedIn =>
-      ref.read(authNotifierProvider).user != null;
+  bool get _isLoggedIn => ref.read(authNotifierProvider).user != null;
 
   Future<void> fetchCart() async {
     if (!_isLoggedIn) {
@@ -123,13 +129,40 @@ class CartNotifier extends Notifier<CartState> {
   }
 
   Future<void> updateQuantity(String itemId, int quantity) async {
+    // Satu perubahan per item pada satu waktu; tap beruntun diabaikan sampai
+    // request sebelumnya selesai (mencegah jumlah akhir tidak sinkron).
+    if (state.isUpdating(itemId)) return;
+
+    CartItem? item;
+    for (final i in state.items) {
+      if (i.id == itemId) {
+        item = i;
+        break;
+      }
+    }
+    if (item != null && quantity > item.stock) {
+      state = state.copyWith(
+        error: 'Jumlah melebihi stok (${item.stock})',
+      );
+      return;
+    }
+
+    state = state.copyWith(
+      updatingIds: {...state.updatingIds, itemId},
+    );
     final res = await _repo.updateQuantity(itemId, quantity);
     if (res.isErr) {
-      state = state.copyWith(error: 'Gagal memperbarui jumlah');
+      state = state.copyWith(
+        error: 'Gagal memperbarui jumlah',
+        updatingIds: {...state.updatingIds}..remove(itemId),
+      );
       return;
     }
     state = state.copyWith(clearError: true);
     await fetchCart();
+    state = state.copyWith(
+      updatingIds: {...state.updatingIds}..remove(itemId),
+    );
   }
 
   Future<void> removeItem(String itemId) async {

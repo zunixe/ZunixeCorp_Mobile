@@ -15,8 +15,7 @@ void main() {
     registerFallbackValue(ProductSort.newest);
   });
 
-  testWidgets('order-success tanpa extra -> redirect ke home',
-      (tester) async {
+  testWidgets('order-success tanpa extra -> redirect ke home', (tester) async {
     final h = await pumpRouter(
       tester,
       cartRepo: stubEmptyCart(),

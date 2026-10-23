@@ -92,8 +92,7 @@ void main() {
           offset: any(named: 'offset'),
           limit: any(named: 'limit'),
           sort: any(named: 'sort'),
-        )).thenAnswer(
-        (_) async => const Result.err(ServerFailure('net')));
+        )).thenAnswer((_) async => const Result.err(ServerFailure('net')));
     when(() => repo.getCategories())
         .thenAnswer((_) async => const Result.ok([]));
     await pump(tester, repo);
@@ -183,8 +182,8 @@ void main() {
       tester,
       authRepo: mockAuthRepo(),
       cartRepo: stubEmptyCart(),
-      productRepo: repoWith(
-          products: [buildProduct(id: 'p9', name: 'Unik', stock: 2)]),
+      productRepo:
+          repoWith(products: [buildProduct(id: 'p9', name: 'Unik', stock: 2)]),
       initialLocation: AppRoutes.productsFull,
     );
     await tester.pump();

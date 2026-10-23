@@ -60,8 +60,7 @@ void main() {
     expect(find.text('Sensor'), findsOneWidget);
   });
 
-  testWidgets('back dari halaman legal kembali ke sebelumnya',
-      (tester) async {
+  testWidgets('back dari halaman legal kembali ke sebelumnya', (tester) async {
     final h = await pumpRouter(
       tester,
       authRepo: mockAuthRepo(),

@@ -141,9 +141,11 @@ Detail: [docs/RELEASE.md](docs/RELEASE.md). Ringkasan: [README.md](README.md).
 ## Verifikasi wajib sebelum menandai selesai
 
 ```bash
+dart format --output=none --set-exit-if-changed lib test tool
 dart run tool/check_imports.dart    # batas modul harus lolos
 flutter analyze                     # harus 0 issue
 flutter test --coverage             # seluruh test hijau
 bash tool/check_coverage.sh         # coverage baris >= 80%
+ALLOW_DEBUG_SIGNING=true flutter build appbundle --release   # verifikasi build
 ```
 <!-- END ZUNIXE-WORKFLOW -->

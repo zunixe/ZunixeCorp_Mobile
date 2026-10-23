@@ -9,3 +9,24 @@ build/
 
 # Coverage
 coverage/
+
+# Secrets & konfigurasi lokal (JANGAN commit)
+supabase/.env.local
+supabase/.env
+.env
+.env.*
+!.env.example
+android/key.properties
+*.jks
+*.keystore
+
+# Artefak kerja lokal / screenshot / catatan
+.playwright-mcp/
+.freebuff/
+__pycache__/
+*.pyc
+/zunixe_*.png
+/zunixe_*.md
+
+# OS / editor
+.DS_Store
