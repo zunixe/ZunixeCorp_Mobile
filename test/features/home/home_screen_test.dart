@@ -108,7 +108,7 @@ void main() {
   testWidgets('promo banner + hero tampil', (tester) async {
     await pump(tester);
     await tester.pump();
-    expect(find.text('Get our latest products!'), findsOneWidget);
+    expect(find.text('Dapatkan produk terbaru kami!'), findsOneWidget);
     expect(
         find.text('Mitra Terpercaya Inovasi Elektronika Anda'), findsWidgets);
     await disposeHome(tester);

@@ -125,7 +125,7 @@ void main() {
     await tester.pump();
     await tester.pump();
     // Tab produk (ProductsScreen) tampil.
-    expect(find.text('Semua'), findsOneWidget);
+    expect(find.text('Terbaru'), findsOneWidget);
   });
 
   testWidgets('badge cart tampil saat ada item', (tester) async {

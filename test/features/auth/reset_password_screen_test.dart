@@ -107,7 +107,7 @@ void main() {
     await tester.pump();
     await tester.pump();
     await tester.pump();
-    expect(find.text('Get our latest products!'), findsOneWidget);
+    expect(find.text('Dapatkan produk terbaru kami!'), findsOneWidget);
     await controller.close();
   });
 
