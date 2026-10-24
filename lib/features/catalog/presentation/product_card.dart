@@ -38,11 +38,11 @@ class ProductCard extends StatelessWidget {
                 width: double.infinity,
                 decoration: const BoxDecoration(
                   color: AppColors.surface,
-                  borderRadius:
-                      BorderRadius.vertical(top: Radius.circular(8)),
+                  borderRadius: BorderRadius.vertical(top: Radius.circular(8)),
                 ),
                 child: ClipRRect(
-                  borderRadius: const BorderRadius.vertical(top: Radius.circular(8)),
+                  borderRadius:
+                      const BorderRadius.vertical(top: Radius.circular(8)),
                   child: Stack(
                     fit: StackFit.expand,
                     children: [
@@ -55,7 +55,8 @@ class ProductCard extends StatelessWidget {
                           top: 8,
                           left: 8,
                           child: Container(
-                            padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 3),
+                            padding: const EdgeInsets.symmetric(
+                                horizontal: 6, vertical: 3),
                             decoration: BoxDecoration(
                               color: AppColors.brand,
                               borderRadius: BorderRadius.circular(4),
@@ -109,7 +110,13 @@ class ProductCard extends StatelessWidget {
                   const SizedBox(height: 8),
                   SizedBox(
                     width: double.infinity,
-                    child: AddToCartButton(product: product, compact: true, expand: true),
+                    child: AddToCartButton(
+                      productId: product.id,
+                      productName: product.name,
+                      stock: product.stock,
+                      compact: true,
+                      expand: true,
+                    ),
                   ),
                 ],
               ),

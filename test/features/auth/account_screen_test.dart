@@ -35,8 +35,7 @@ void main() {
         tester,
         mockAuthRepo(
             user: buildUser(
-                email: 'budi@mail.com',
-                userMetadata: {'full_name': 'Budi'})));
+                email: 'budi@mail.com', userMetadata: {'full_name': 'Budi'})));
     expect(find.text('Budi'), findsWidgets);
     expect(find.text('budi@mail.com'), findsOneWidget);
     expect(find.text('Pesanan Saya'), findsOneWidget);
@@ -80,6 +79,38 @@ void main() {
     verify(() => repo.signOut()).called(1);
     // Setelah logout tampil form login.
     expect(find.text('Lanjutkan dengan Google'), findsOneWidget);
+  });
+
+  testWidgets('hapus akun -> dialog konfirmasi memanggil deleteAccount',
+      (tester) async {
+    final repo = mockAuthRepo(user: buildUser());
+    when(() => repo.deleteAccount()).thenAnswer((_) async {});
+    await pump(tester, repo);
+    await tester.ensureVisible(find.text('Hapus Akun'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Hapus Akun'));
+    await tester.pump();
+    expect(find.text('Hapus akun permanen?'), findsOneWidget);
+    await tester.tap(find.text('Hapus Akun').last);
+    await tester.pump();
+    await tester.pump();
+    verify(() => repo.deleteAccount()).called(1);
+    // Sesi berakhir -> form login tampil lagi.
+    expect(find.text('Lanjutkan dengan Google'), findsOneWidget);
+  });
+
+  testWidgets('hapus akun Batal -> tidak memanggil deleteAccount',
+      (tester) async {
+    final repo = mockAuthRepo(user: buildUser());
+    await pump(tester, repo);
+    await tester.ensureVisible(find.text('Hapus Akun'));
+    await tester.pumpAndSettle();
+    await tester.tap(find.text('Hapus Akun'));
+    await tester.pump();
+    await tester.tap(find.text('Batal'));
+    await tester.pump();
+    verifyNever(() => repo.deleteAccount());
+    expect(find.text('Pesanan Saya'), findsOneWidget);
   });
 
   testWidgets('logout Batal -> tetap login', (tester) async {

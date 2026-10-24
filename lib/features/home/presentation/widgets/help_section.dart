@@ -49,8 +49,8 @@ class HelpSection extends StatelessWidget {
                 color: AppColors.ink),
           ),
           const SizedBox(height: 12),
-          ..._items.map((item) => FaqItem(
-              title: item.$1, icon: item.$2, content: item.$3)),
+          ..._items.map((item) =>
+              FaqItem(title: item.$1, icon: item.$2, content: item.$3)),
         ],
       ),
     );
@@ -93,8 +93,8 @@ class FaqItem extends StatelessWidget {
           child: ExpansionTile(
             leading: Icon(icon, color: AppColors.brand, size: 24),
             title: Text(title,
-                style: const TextStyle(
-                    fontSize: 14, fontWeight: FontWeight.w600)),
+                style:
+                    const TextStyle(fontSize: 14, fontWeight: FontWeight.w600)),
             childrenPadding: const EdgeInsets.fromLTRB(16, 0, 16, 16),
             expandedCrossAxisAlignment: CrossAxisAlignment.start,
             children: [

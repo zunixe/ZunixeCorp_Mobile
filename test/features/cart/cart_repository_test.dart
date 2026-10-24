@@ -70,8 +70,7 @@ void main() {
       client.stubRpc('cart_add', returning: null);
       final repo = CartRepositorySupabase(client: client);
 
-      final res =
-          await repo.addToCart(productId: 'p1', quantity: 2);
+      final res = await repo.addToCart(productId: 'p1', quantity: 2);
 
       expect(res.isOk, isTrue);
       final captured = verify(
@@ -122,6 +121,54 @@ void main() {
       final repo = CartRepositorySupabase(client: client);
 
       expect((await repo.clearCart('u1')).isOk, isTrue);
+    });
+
+    test('updateQuantity qty>0 -> update path', () async {
+      final client = authedClient('u1');
+      client.stubFrom('cart_items', returning: <Map<String, dynamic>>[]);
+      final repo = CartRepositorySupabase(client: client);
+
+      final res = await repo.updateQuantity('ci1', 3);
+
+      expect(res.isOk, isTrue);
+      final qb = client.queryBuilders['cart_items']!.first;
+      expect(qb.wasCalled('update'), isTrue);
+      expect(qb.wasCalled('delete'), isFalse);
+    });
+
+    test('updateQuantity error -> Err', () async {
+      final client = authedClient('u1');
+      client.stubFrom('cart_items', throws: Exception('net'));
+      final repo = CartRepositorySupabase(client: client);
+
+      expect((await repo.updateQuantity('ci1', 2)).isErr, isTrue);
+    });
+
+    test('removeItem ok', () async {
+      final client = authedClient('u1');
+      client.stubFrom('cart_items', returning: <Map<String, dynamic>>[]);
+      final repo = CartRepositorySupabase(client: client);
+
+      expect((await repo.removeItem('ci1')).isOk, isTrue);
+    });
+
+    test('clearCart error -> Err', () async {
+      final client = authedClient('u1');
+      client.stubFrom('cart_items', throws: Exception('net'));
+      final repo = CartRepositorySupabase(client: client);
+
+      expect((await repo.clearCart('u1')).isErr, isTrue);
+    });
+
+    test('fetchCart error memakai fallback pesan lokal', () async {
+      final client = authedClient('u1');
+      client.stubFrom('cart_items', throws: Exception(''));
+      final repo = CartRepositorySupabase(client: client);
+
+      final res = await repo.fetchCart('u1');
+
+      expect(res.isErr, isTrue);
+      expect(res.failure.message, 'Gagal memuat keranjang');
     });
   });
 }

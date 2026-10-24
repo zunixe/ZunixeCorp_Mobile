@@ -15,3 +15,19 @@ String orderStatusLabel(String status) {
       return status;
   }
 }
+
+/// Label status pembayaran (terpisah dari status pengiriman).
+String paymentStatusLabel(String status) {
+  switch (status) {
+    case 'unpaid':
+      return 'Belum bayar';
+    case 'waiting_confirmation':
+      return 'Menunggu verifikasi';
+    case 'paid':
+      return 'Lunas';
+    case 'refunded':
+      return 'Dikembalikan';
+    default:
+      return status;
+  }
+}

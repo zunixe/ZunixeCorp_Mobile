@@ -29,8 +29,7 @@ class FakeAuthRepository extends Fake implements AuthRepository {
     required String userId,
     required String fullName,
     required String phone,
-  }) async {
-  }
+  }) async {}
 }
 
 void main() {
@@ -73,10 +72,11 @@ void main() {
       when(() => repo.onAuthStateChange)
           .thenAnswer((_) => const Stream.empty());
       when(() => repo.signInWithPassword(
-            email: any(named: 'email'),
-            password: any(named: 'password'),
-          )).thenAnswer(
-          (_) async => AuthResponse(user: buildUser(email: 'x@y.com')));
+                email: any(named: 'email'),
+                password: any(named: 'password'),
+              ))
+          .thenAnswer(
+              (_) async => AuthResponse(user: buildUser(email: 'x@y.com')));
       final container = containerWith(repo);
       final notifier = container.read(authNotifierProvider.notifier);
 
@@ -115,11 +115,12 @@ void main() {
       when(() => repo.onAuthStateChange)
           .thenAnswer((_) => const Stream.empty());
       when(() => repo.signUp(
-            email: any(named: 'email'),
-            password: any(named: 'password'),
-            data: any(named: 'data'),
-          )).thenAnswer(
-          (_) async => AuthResponse(user: buildUser(), session: null));
+                email: any(named: 'email'),
+                password: any(named: 'password'),
+                data: any(named: 'data'),
+              ))
+          .thenAnswer(
+              (_) async => AuthResponse(user: buildUser(), session: null));
       final container = containerWith(repo);
 
       expect(
@@ -152,8 +153,7 @@ void main() {
       final controller = StreamController<AuthState>.broadcast();
       final repo = MockAuthRepository();
       when(() => repo.currentUser).thenReturn(null);
-      when(() => repo.onAuthStateChange)
-          .thenAnswer((_) => controller.stream);
+      when(() => repo.onAuthStateChange).thenAnswer((_) => controller.stream);
       final container = containerWith(repo);
       // Daftarkan listener agar rebuild terpantau.
       final states = <AuthSessionState>[];
@@ -169,8 +169,8 @@ void main() {
       ));
       await Future<void>.delayed(Duration.zero);
 
-      expect(container.read(authNotifierProvider).user?.email,
-          'oauth@mail.com');
+      expect(
+          container.read(authNotifierProvider).user?.email, 'oauth@mail.com');
       await controller.close();
     });
 
@@ -178,8 +178,7 @@ void main() {
       final controller = StreamController<AuthState>.broadcast();
       final repo = MockAuthRepository();
       when(() => repo.currentUser).thenReturn(null);
-      when(() => repo.onAuthStateChange)
-          .thenAnswer((_) => controller.stream);
+      when(() => repo.onAuthStateChange).thenAnswer((_) => controller.stream);
       final container = containerWith(repo);
       final notifier = container.read(authNotifierProvider.notifier);
       var done = false;

@@ -8,3 +8,5 @@ export 'domain/repositories/order_repository.dart';
 export 'data/order_repository_supabase.dart';
 export 'presentation/orders_providers.dart';
 export 'presentation/orders_screen.dart';
+export 'presentation/payment_info.dart';
+export 'presentation/orders_module.dart';

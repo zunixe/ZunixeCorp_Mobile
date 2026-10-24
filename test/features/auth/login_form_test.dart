@@ -40,20 +40,20 @@ void main() {
   testWidgets('login sukses -> snackbar hijau', (tester) async {
     final repo = mockAuthRepo();
     when(() => repo.signInWithPassword(
-          email: any(named: 'email'),
-          password: any(named: 'password'),
-        )).thenAnswer(
-        (_) async => AuthResponse(user: buildUser(email: 'a@b.com')));
+              email: any(named: 'email'),
+              password: any(named: 'password'),
+            ))
+        .thenAnswer(
+            (_) async => AuthResponse(user: buildUser(email: 'a@b.com')));
     await pump(tester, repo);
-    await tester.enterText(
-        find.widgetWithText(TextField, 'Email'), 'a@b.com');
+    await tester.enterText(find.widgetWithText(TextField, 'Email'), 'a@b.com');
     await tester.enterText(
         find.widgetWithText(TextField, 'Password'), 'secret');
     await tester.tap(find.widgetWithText(GradientButton, 'Masuk'));
     await tester.pump();
     await tester.pump();
-    verify(() => repo.signInWithPassword(
-        email: 'a@b.com', password: 'secret')).called(1);
+    verify(() => repo.signInWithPassword(email: 'a@b.com', password: 'secret'))
+        .called(1);
     expect(find.text('Login berhasil!'), findsOneWidget);
   });
 
@@ -64,10 +64,8 @@ void main() {
           password: any(named: 'password'),
         )).thenThrow(const AuthApiException('Kredensial salah'));
     await pump(tester, repo);
-    await tester.enterText(
-        find.widgetWithText(TextField, 'Email'), 'a@b.com');
-    await tester.enterText(
-        find.widgetWithText(TextField, 'Password'), 'salah');
+    await tester.enterText(find.widgetWithText(TextField, 'Email'), 'a@b.com');
+    await tester.enterText(find.widgetWithText(TextField, 'Password'), 'salah');
     await tester.tap(find.widgetWithText(GradientButton, 'Masuk'));
     await tester.pump();
     await tester.pump();
@@ -97,9 +95,7 @@ void main() {
     await tester.pump();
     verify(() => repo.resetPasswordForEmail('reset@mail.com',
         redirectTo: any(named: 'redirectTo'))).called(1);
-    expect(
-        find.text(
-            'Link reset terkirim ke reset@mail.com. Cek inbox/spam.'),
+    expect(find.text('Link reset terkirim ke reset@mail.com. Cek inbox/spam.'),
         findsOneWidget);
   });
 

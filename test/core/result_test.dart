@@ -37,8 +37,7 @@ void main() {
     });
 
     test('objek bermessage dipakai', () {
-      expect(Failure.from(_HasMessage('Stok habis')),
-          isA<ServerFailure>());
+      expect(Failure.from(_HasMessage('Stok habis')), isA<ServerFailure>());
       expect(Failure.from(_HasMessage('Stok habis')).message, 'Stok habis');
     });
 
@@ -70,8 +69,8 @@ void main() {
     });
 
     test('toString memuat tipe + pesan', () {
-      expect(const AuthFailure('sesi habis').toString(),
-          contains('sesi habis'));
+      expect(
+          const AuthFailure('sesi habis').toString(), contains('sesi habis'));
     });
   });
 

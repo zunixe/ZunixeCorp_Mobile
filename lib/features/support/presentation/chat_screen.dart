@@ -1,10 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:flutter/services.dart';
-import 'package:url_launcher/url_launcher.dart';
 
 import 'package:zunixe_corp_mobile/core/config/store.dart';
 import 'package:zunixe_corp_mobile/core/ui/app_header.dart';
 import 'package:zunixe_corp_mobile/core/theme/app_colors.dart';
+import 'package:zunixe_corp_mobile/core/utils/url_opener.dart';
 
 /// Support via WhatsApp. Tidak ada backend chat: pesan yang diketik
 /// diteruskan sebagai teks WhatsApp (jujur — tanpa auto-reply palsu).
@@ -27,19 +27,16 @@ class _ChatScreenState extends State<ChatScreen> {
   /// Buka WhatsApp memakai pesan yang diketik (bila ada) sebagai teks awal.
   void _send() async {
     final text = _msgCtrl.text.trim();
-    final uri = text.isEmpty
-        ? Uri.parse(StoreConfig.waChatUrl)
-        : Uri.parse(
-            'https://wa.me/${StoreConfig.waNumber}?text=${Uri.encodeComponent(text)}');
-    if (await canLaunchUrl(uri)) {
-      await launchUrl(uri, mode: LaunchMode.externalApplication);
-    } else {
+    final url = text.isEmpty
+        ? StoreConfig.waChatUrl
+        : 'https://wa.me/${StoreConfig.waNumber}?text=${Uri.encodeComponent(text)}';
+    final opened = await openExternalUrl(url);
+    if (!opened) {
       await Clipboard.setData(const ClipboardData(text: StoreConfig.waDisplay));
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
           const SnackBar(
-              content:
-                  Text('Nomor WhatsApp disalin: ${StoreConfig.waDisplay}'),
+              content: Text('Nomor WhatsApp disalin: ${StoreConfig.waDisplay}'),
               backgroundColor: AppColors.success),
         );
       }
@@ -47,10 +44,8 @@ class _ChatScreenState extends State<ChatScreen> {
   }
 
   void _openWhatsApp() async {
-    final url = Uri.parse(StoreConfig.waChatUrl);
-    if (await canLaunchUrl(url)) {
-      await launchUrl(url, mode: LaunchMode.externalApplication);
-    } else {
+    final opened = await openExternalUrl(StoreConfig.waChatUrl);
+    if (!opened) {
       await Clipboard.setData(const ClipboardData(text: StoreConfig.waNumber));
       if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
@@ -86,8 +81,8 @@ class _ChatScreenState extends State<ChatScreen> {
               showProfile: false,
               trailing: [
                 IconButton(
-                  icon: const Icon(Icons.call,
-                      color: AppColors.brand, size: 22),
+                  icon:
+                      const Icon(Icons.call, color: AppColors.brand, size: 22),
                   tooltip: 'Chat WhatsApp',
                   onPressed: _openWhatsApp,
                 ),
@@ -195,8 +190,8 @@ class _ChatScreenState extends State<ChatScreen> {
                 decoration: InputDecoration(
                   hintText: 'Ketik pesan…',
                   hintStyle: TextStyle(color: Colors.grey[400], fontSize: 14),
-                  contentPadding: const EdgeInsets.symmetric(
-                      horizontal: 16, vertical: 10),
+                  contentPadding:
+                      const EdgeInsets.symmetric(horizontal: 16, vertical: 10),
                   border: OutlineInputBorder(
                       borderRadius: BorderRadius.circular(24),
                       borderSide: BorderSide.none),
@@ -258,8 +253,7 @@ class _InfoRow extends StatelessWidget {
       children: [
         Icon(icon, size: 16, color: AppColors.brand),
         const SizedBox(width: 8),
-        Text(text,
-            style: TextStyle(fontSize: 13, color: Colors.grey[700])),
+        Text(text, style: TextStyle(fontSize: 13, color: Colors.grey[700])),
       ],
     );
   }

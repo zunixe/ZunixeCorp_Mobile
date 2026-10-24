@@ -64,12 +64,14 @@ void main() {
     });
 
     test('price sebagai double', () {
-      final item = CartItem.fromRow({'id': 'x', 'product_id': 'p', 'price': 9.5});
+      final item =
+          CartItem.fromRow({'id': 'x', 'product_id': 'p', 'price': 9.5});
       expect(item.price, 9.5);
     });
 
     test('quantity mutable dapat diubah', () {
-      final item = CartItem.fromRow({'id': 'x', 'product_id': 'p', 'quantity': 2});
+      final item =
+          CartItem.fromRow({'id': 'x', 'product_id': 'p', 'quantity': 2});
       item.quantity = 5;
       expect(item.quantity, 5);
     });

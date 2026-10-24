@@ -10,3 +10,4 @@ export 'presentation/catalog_providers.dart';
 export 'presentation/product_card.dart';
 export 'presentation/product_detail_screen.dart';
 export 'presentation/products_screen.dart';
+export 'presentation/catalog_module.dart';

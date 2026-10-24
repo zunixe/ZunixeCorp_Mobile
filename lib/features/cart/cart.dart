@@ -8,3 +8,4 @@ export 'data/cart_repository_supabase.dart';
 export 'presentation/add_to_cart_button.dart';
 export 'presentation/cart_providers.dart';
 export 'presentation/cart_screen.dart';
+export 'presentation/cart_module.dart';

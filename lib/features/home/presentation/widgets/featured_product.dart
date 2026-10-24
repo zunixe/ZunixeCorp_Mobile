@@ -50,13 +50,13 @@ class FeaturedProduct extends StatelessWidget {
                   style: OutlinedButton.styleFrom(
                     foregroundColor: AppColors.brand,
                     side: const BorderSide(color: AppColors.brand),
-                    padding: const EdgeInsets.symmetric(
-                        horizontal: 16, vertical: 8),
+                    padding:
+                        const EdgeInsets.symmetric(horizontal: 16, vertical: 8),
                     shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(12)),
                   ),
-                  child:
-                      const Text('Lihat Produk', style: TextStyle(fontSize: 12)),
+                  child: const Text('Lihat Produk',
+                      style: TextStyle(fontSize: 12)),
                 ),
               ],
             ),

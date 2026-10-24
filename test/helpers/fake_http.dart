@@ -30,8 +30,7 @@ class _FakeHttpClient implements HttpClient {
   String? userAgent;
 
   @override
-  Future<HttpClientRequest> getUrl(Uri url) async =>
-      _FakeHttpClientRequest();
+  Future<HttpClientRequest> getUrl(Uri url) async => _FakeHttpClientRequest();
 
   @override
   Future<HttpClientRequest> openUrl(String method, Uri url) async =>
@@ -73,8 +72,7 @@ class _FakeHttpClient implements HttpClient {
       throw UnimplementedError();
 
   @override
-  Future<HttpClientRequest> deleteUrl(Uri url) =>
-      throw UnimplementedError();
+  Future<HttpClientRequest> deleteUrl(Uri url) => throw UnimplementedError();
 
   @override
   set findProxy(String Function(Uri url)? f) {}
@@ -185,8 +183,7 @@ class _FakeHttpClientRequest implements HttpClientRequest {
 
 class _FakeHttpClientResponse extends Stream<List<int>>
     implements HttpClientResponse {
-  final Stream<List<int>> _stream =
-      Stream<List<int>>.value(kTransparentPng);
+  final Stream<List<int>> _stream = Stream<List<int>>.value(kTransparentPng);
 
   @override
   StreamSubscription<List<int>> listen(void Function(List<int> event)? onData,

@@ -94,10 +94,9 @@ class AuthNotifier extends Notifier<AuthSessionState> {
     state = state.copyWith(
         isLoading: true, clearError: true, lastMethod: 'password');
     try {
-      final res = await _repo.signInWithPassword(
-          email: email, password: password);
-      final user =
-          res.user == null ? null : AppUser.fromSupabase(res.user!);
+      final res =
+          await _repo.signInWithPassword(email: email, password: password);
+      final user = res.user == null ? null : AppUser.fromSupabase(res.user!);
       state = state.copyWith(user: user);
       return true;
     } on AuthApiException catch (e) {
@@ -125,8 +124,7 @@ class AuthNotifier extends Notifier<AuthSessionState> {
         password: password,
         data: {'full_name': fullName, if (phone != null) 'phone': phone},
       );
-      final user =
-          res.user == null ? null : AppUser.fromSupabase(res.user!);
+      final user = res.user == null ? null : AppUser.fromSupabase(res.user!);
       state = state.copyWith(user: user);
       if (res.session == null) return RegisterResult.needVerification;
       return RegisterResult.loggedIn;
@@ -148,8 +146,7 @@ class AuthNotifier extends Notifier<AuthSessionState> {
   Future<bool> signInWithFacebook() =>
       _signInWithProvider(OAuthProvider.facebook, 'Facebook');
 
-  Future<bool> _signInWithProvider(
-      OAuthProvider provider, String label) async {
+  Future<bool> _signInWithProvider(OAuthProvider provider, String label) async {
     state = state.copyWith(
       isLoading: true,
       clearError: true,
@@ -184,6 +181,24 @@ class AuthNotifier extends Notifier<AuthSessionState> {
     state = state.copyWith(clearUser: true);
   }
 
+  /// Hapus akun permanen. Mengembalikan `false` bila server menolak.
+  Future<bool> deleteAccount() async {
+    state = state.copyWith(isLoading: true, clearError: true);
+    try {
+      await _repo.deleteAccount();
+      state = state.copyWith(clearUser: true);
+      return true;
+    } on AuthException catch (e) {
+      state = state.copyWith(error: e.message);
+      return false;
+    } catch (_) {
+      state = state.copyWith(error: 'Gagal menghapus akun. Periksa koneksi.');
+      return false;
+    } finally {
+      state = state.copyWith(isLoading: false);
+    }
+  }
+
   Future<bool> resetPassword(String email) async {
     state = state.copyWith(clearError: true);
     try {
@@ -193,8 +208,8 @@ class AuthNotifier extends Notifier<AuthSessionState> {
       state = state.copyWith(error: e.message);
       return false;
     } catch (_) {
-      state = state.copyWith(
-          error: 'Gagal mengirim email reset. Periksa koneksi.');
+      state =
+          state.copyWith(error: 'Gagal mengirim email reset. Periksa koneksi.');
       return false;
     }
   }
@@ -202,18 +217,16 @@ class AuthNotifier extends Notifier<AuthSessionState> {
   Future<bool> updatePassword(String newPassword) async {
     state = state.copyWith(clearError: true);
     try {
-      final res =
-          await _repo.updateUser(UserAttributes(password: newPassword));
-      final user =
-          res.user == null ? null : AppUser.fromSupabase(res.user!);
+      final res = await _repo.updateUser(UserAttributes(password: newPassword));
+      final user = res.user == null ? null : AppUser.fromSupabase(res.user!);
       state = state.copyWith(user: user);
       return true;
     } on AuthException catch (e) {
       state = state.copyWith(error: e.message);
       return false;
     } catch (_) {
-      state = state.copyWith(
-          error: 'Gagal menyimpan password. Periksa koneksi.');
+      state =
+          state.copyWith(error: 'Gagal menyimpan password. Periksa koneksi.');
       return false;
     }
   }
@@ -223,8 +236,7 @@ class AuthNotifier extends Notifier<AuthSessionState> {
   }
 }
 
-final authNotifierProvider =
-    NotifierProvider<AuthNotifier, AuthSessionState>(
+final authNotifierProvider = NotifierProvider<AuthNotifier, AuthSessionState>(
   AuthNotifier.new,
   name: 'authNotifierProvider',
 );

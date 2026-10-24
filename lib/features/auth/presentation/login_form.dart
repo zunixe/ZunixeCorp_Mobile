@@ -15,7 +15,10 @@ import 'package:zunixe_corp_mobile/core/router/app_routes.dart';
 class LoginForm extends ConsumerStatefulWidget {
   final bool embedded;
 
-  const LoginForm({super.key, this.embedded = false});
+  /// Tujuan setelah login berhasil (mis. `/checkout` dari guard router).
+  final String? from;
+
+  const LoginForm({super.key, this.embedded = false, this.from});
 
   @override
   ConsumerState<LoginForm> createState() => _LoginFormState();
@@ -39,8 +42,7 @@ class _LoginFormState extends ConsumerState<LoginForm> {
       prefixIcon: Icon(icon, color: AppColors.brand, size: 20),
       suffixIcon: suffix,
       isDense: true,
-      contentPadding:
-          const EdgeInsets.symmetric(horizontal: 14, vertical: 13),
+      contentPadding: const EdgeInsets.symmetric(horizontal: 14, vertical: 13),
       border: OutlineInputBorder(borderRadius: BorderRadius.circular(12)),
       focusedBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(12),
@@ -54,29 +56,33 @@ class _LoginFormState extends ConsumerState<LoginForm> {
     final messenger = ScaffoldMessenger.of(context);
     final navigator = Navigator.of(context);
     if (ref.read(authNotifierProvider).isLoading) return;
-    final ok =
-        await notifier.login(_emailCtrl.text.trim(), _passCtrl.text);
-    if (!context.mounted) return;
+    final ok = await notifier.login(_emailCtrl.text.trim(), _passCtrl.text);
+    if (!mounted) return;
     if (ok) {
       messenger.showSnackBar(
         const SnackBar(
             content: Text('Login berhasil!'),
             backgroundColor: AppColors.success),
       );
-      if (!widget.embedded) navigator.pop();
+      if (!widget.embedded) {
+        final target = AppRoutes.safeInternalPath(widget.from);
+        if (target != null) {
+          context.go(target);
+        } else {
+          navigator.pop();
+        }
+      }
     } else {
       final error = ref.read(authNotifierProvider).error;
       messenger.showSnackBar(
         SnackBar(
-            content: Text(error ?? 'Login gagal'),
-            backgroundColor: Colors.red),
+            content: Text(error ?? 'Login gagal'), backgroundColor: Colors.red),
       );
     }
   }
 
   Future<void> _forgotPassword() async {
-    final emailCtrl =
-        TextEditingController(text: _emailCtrl.text.trim());
+    final emailCtrl = TextEditingController(text: _emailCtrl.text.trim());
     final email = await showDialog<String>(
       context: context,
       builder: (ctx) => AlertDialog(
@@ -94,12 +100,11 @@ class _LoginFormState extends ConsumerState<LoginForm> {
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx),
-            child: const Text('Batal',
-                style: TextStyle(color: AppColors.brand)),
+            child:
+                const Text('Batal', style: TextStyle(color: AppColors.brand)),
           ),
           ElevatedButton(
-            onPressed: () => Navigator.pop(
-                ctx, emailCtrl.text.trim()),
+            onPressed: () => Navigator.pop(ctx, emailCtrl.text.trim()),
             style: ElevatedButton.styleFrom(
               backgroundColor: AppColors.brand,
               foregroundColor: Colors.white,
@@ -121,18 +126,23 @@ class _LoginFormState extends ConsumerState<LoginForm> {
             ? 'Link reset terkirim ke $email. Cek inbox/spam.'
             : (ref.read(authNotifierProvider).error ??
                 'Gagal mengirim email reset.')),
-        backgroundColor:
-            ok ? AppColors.success : Colors.red,
+        backgroundColor: ok ? AppColors.success : Colors.red,
       ),
     );
   }
 
   void _goRegister() {
+    final target = widget.from == null
+        ? AppRoutes.register
+        : Uri(
+            path: AppRoutes.register,
+            queryParameters: {'from': widget.from!},
+          ).toString();
     if (widget.embedded) {
-      context.push(AppRoutes.register);
+      context.push(target);
     } else {
       // pushReplacement: context tetap valid (tanpa pop dulu).
-      context.pushReplacement(AppRoutes.register);
+      context.pushReplacement(target);
     }
   }
 
@@ -177,9 +187,7 @@ class _LoginFormState extends ConsumerState<LoginForm> {
         const Text(
           'Masuk',
           style: TextStyle(
-              fontSize: 24,
-              fontWeight: FontWeight.bold,
-              color: AppColors.ink),
+              fontSize: 24, fontWeight: FontWeight.bold, color: AppColors.ink),
         ),
         const SizedBox(height: 4),
         Text(
@@ -230,8 +238,7 @@ class _LoginFormState extends ConsumerState<LoginForm> {
           onPressed: _submit,
         ),
         const SizedBox(height: 24),
-        const SocialAuthButtons(
-            dividerLabel: 'atau masuk dengan'),
+        const SocialAuthButtons(dividerLabel: 'atau masuk dengan'),
         const SizedBox(height: 24),
         Row(
           mainAxisAlignment: MainAxisAlignment.center,

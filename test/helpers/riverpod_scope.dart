@@ -41,8 +41,7 @@ MockProductRepository stubEmptyProducts() {
         limit: any(named: 'limit'),
         sort: any(named: 'sort'),
       )).thenAnswer((_) async => const Result.ok([]));
-  when(() => repo.getCategories())
-      .thenAnswer((_) async => const Result.ok([]));
+  when(() => repo.getCategories()).thenAnswer((_) async => const Result.ok([]));
   return repo;
 }
 
@@ -102,10 +101,8 @@ Future<RouterHarness> pumpRouter(
 }) async {
   final container = ProviderContainer(
     overrides: [
-      authRepositoryProvider.overrideWithValue(
-          authRepo ?? mockAuthRepo()),
-      if (cartRepo != null)
-        cartRepositoryProvider.overrideWithValue(cartRepo),
+      authRepositoryProvider.overrideWithValue(authRepo ?? mockAuthRepo()),
+      if (cartRepo != null) cartRepositoryProvider.overrideWithValue(cartRepo),
       if (productRepo != null)
         productRepositoryProvider.overrideWithValue(productRepo),
       if (orderRepo != null)

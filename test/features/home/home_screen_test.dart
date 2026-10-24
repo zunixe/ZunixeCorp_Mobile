@@ -40,13 +40,14 @@ void main() {
         .thenAnswer((_) async => const Result.ok([]));
     if (throws != null) {
       when(() => repo.getProducts(
-            search: any(named: 'search'),
-            category: any(named: 'category'),
-            offset: any(named: 'offset'),
-            limit: any(named: 'limit'),
-            sort: any(named: 'sort'),
-          )).thenAnswer(
-          (_) async => Result.err(ServerFailure(throws.toString())));
+                search: any(named: 'search'),
+                category: any(named: 'category'),
+                offset: any(named: 'offset'),
+                limit: any(named: 'limit'),
+                sort: any(named: 'sort'),
+              ))
+          .thenAnswer(
+              (_) async => Result.err(ServerFailure(throws.toString())));
     } else {
       when(() => repo.getProducts(
             search: any(named: 'search'),
@@ -88,10 +89,9 @@ void main() {
     return tester.pumpWidget(
       ProviderScope(
         overrides: [
-          authRepositoryProvider.overrideWithValue(
-              authRepo ?? mockAuthRepo()),
-          cartRepositoryProvider.overrideWithValue(
-              cartRepo ?? defaultCartRepo()),
+          authRepositoryProvider.overrideWithValue(authRepo ?? mockAuthRepo()),
+          cartRepositoryProvider
+              .overrideWithValue(cartRepo ?? defaultCartRepo()),
           productRepositoryProvider.overrideWithValue(
               productRepo ?? productRepoWith(defaultProducts())),
         ],
@@ -108,9 +108,9 @@ void main() {
   testWidgets('promo banner + hero tampil', (tester) async {
     await pump(tester);
     await tester.pump();
-    expect(find.text('Get our latest products!'), findsOneWidget);
-    expect(find.text('Mitra Terpercaya Inovasi Elektronika Anda'),
-        findsWidgets);
+    expect(find.text('Dapatkan produk terbaru kami!'), findsOneWidget);
+    expect(
+        find.text('Mitra Terpercaya Inovasi Elektronika Anda'), findsWidgets);
     await disposeHome(tester);
   });
 
@@ -127,54 +127,13 @@ void main() {
     await disposeHome(tester);
   });
 
-  testWidgets('super promo + countdown tampil', (tester) async {
+  testWidgets('kartu promo tampil tanpa hitung mundur palsu', (tester) async {
     await pump(tester);
-    expect(find.text('Super Promo'), findsOneWidget);
-    expect(find.text('Hari'), findsOneWidget);
-    expect(find.text('Jam'), findsOneWidget);
-    expect(find.text('Menit'), findsOneWidget);
-    expect(find.text('Detik'), findsOneWidget);
+    expect(find.text('Promo Spesial'), findsOneWidget);
+    expect(find.text('Lihat'), findsOneWidget);
+    expect(find.text('Hari'), findsNothing);
+    expect(find.text('Detik'), findsNothing);
     await disposeHome(tester);
-  });
-
-  group('promoCountdown (murni)', () {
-    test('awal bulan -> sisa ~sebulan', () {
-      final cd = promoCountdown(DateTime(2024, 5, 1, 0, 0, 0));
-      // Mei punya 31 hari: 31*24*3600-1 detik tersisa.
-      expect(cd.days, 30);
-      expect(cd.hours, 23);
-      expect(cd.minutes, 59);
-      expect(cd.seconds, 59);
-    });
-
-    test('akhir bulan 1 detik sebelumnya', () {
-      final cd = promoCountdown(DateTime(2024, 5, 31, 23, 59, 58));
-      expect(cd.days, 0);
-      expect(cd.hours, 0);
-      expect(cd.minutes, 0);
-      expect(cd.seconds, 1);
-    });
-
-    test('tepat di akhir -> nol', () {
-      final cd = promoCountdown(DateTime(2024, 5, 31, 23, 59, 59));
-      expect((cd.days, cd.hours, cd.minutes, cd.seconds), (0, 0, 0, 0));
-    });
-
-    test('Februari kabisat 2024', () {
-      final cd = promoCountdown(DateTime(2024, 2, 1, 0, 0, 0));
-      expect(cd.days, 28);
-    });
-
-    test('komponen konsisten dengan total detik', () {
-      final now = DateTime(2024, 6, 15, 12, 30, 45);
-      final cd = promoCountdown(now);
-      final end = DateTime(2024, 7, 1).subtract(const Duration(seconds: 1));
-      final total = end.difference(now).inSeconds;
-      expect(
-        cd.days * 86400 + cd.hours * 3600 + cd.minutes * 60 + cd.seconds,
-        total,
-      );
-    });
   });
 
   testWidgets('section rekomendasi + produk terbaru tampil', (tester) async {
@@ -245,8 +204,7 @@ void main() {
   testWidgets('drawer tamu -> logo + tagline', (tester) async {
     await pump(tester, productRepo: productRepoWith([]));
     await tester.pump();
-    final ScaffoldState scaffold =
-        tester.state(find.byType(Scaffold).first);
+    final ScaffoldState scaffold = tester.state(find.byType(Scaffold).first);
     scaffold.openDrawer();
     await tester.pump();
     await tester.pump();
@@ -261,13 +219,11 @@ void main() {
       tester,
       authRepo: mockAuthRepo(
           user: buildUser(
-              email: 'budi@mail.com',
-              userMetadata: {'full_name': 'Budi'})),
+              email: 'budi@mail.com', userMetadata: {'full_name': 'Budi'})),
       productRepo: productRepoWith([]),
     );
     await tester.pump();
-    final ScaffoldState scaffold =
-        tester.state(find.byType(Scaffold).first);
+    final ScaffoldState scaffold = tester.state(find.byType(Scaffold).first);
     scaffold.openDrawer();
     await tester.pump();
     await tester.pump();
@@ -279,11 +235,9 @@ void main() {
   testWidgets('tap Keluar di drawer -> logout', (tester) async {
     final authRepo = mockAuthRepo(user: buildUser());
     when(() => authRepo.signOut()).thenAnswer((_) async {});
-    await pump(tester,
-        authRepo: authRepo, productRepo: productRepoWith([]));
+    await pump(tester, authRepo: authRepo, productRepo: productRepoWith([]));
     await tester.pump();
-    final ScaffoldState scaffold =
-        tester.state(find.byType(Scaffold).first);
+    final ScaffoldState scaffold = tester.state(find.byType(Scaffold).first);
     scaffold.openDrawer();
     await tester.pumpAndSettle();
     await tester.tap(find.text('Keluar'));

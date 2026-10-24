@@ -2,9 +2,9 @@ import 'dart:async';
 import 'dart:math';
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'package:zunixe_corp_mobile/features/auth/presentation/auth_providers.dart';
-import 'package:zunixe_corp_mobile/features/cart/presentation/cart_providers.dart';
-import 'package:zunixe_corp_mobile/features/orders/presentation/orders_providers.dart';
+import 'package:zunixe_corp_mobile/features/auth/auth.dart';
+import 'package:zunixe_corp_mobile/features/cart/cart.dart';
+import 'package:zunixe_corp_mobile/features/orders/orders.dart';
 import 'package:zunixe_corp_mobile/core/ui/app_header.dart';
 import 'package:zunixe_corp_mobile/core/ui/gradient_button.dart';
 import 'package:zunixe_corp_mobile/core/utils/format.dart';
@@ -41,9 +41,13 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
   Future<void> _prefillProfile() async {
     final userId = ref.read(authNotifierProvider).user?.id;
     if (userId == null) return;
-    final profile = await ref
-        .read(authRepositoryProvider)
-        .getProfile(userId);
+    ({String fullName, String phone})? profile;
+    try {
+      profile = await ref.read(authRepositoryProvider).getProfile(userId);
+    } catch (_) {
+      // Prefill bersifat opsional; form tetap bisa diisi manual.
+      return;
+    }
     if (!mounted || profile == null) return;
     if (_nameCtrl.text.isEmpty) {
       _nameCtrl.text = profile.fullName;
@@ -57,11 +61,15 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
   Future<void> _saveProfile(String? userId) async {
     if (userId == null) return;
     // Best-effort: jangan blokir alur sukses.
-    unawaited(ref.read(authRepositoryProvider).saveProfile(
-          userId: userId,
-          fullName: _nameCtrl.text.trim(),
-          phone: _phoneCtrl.text.trim(),
-        ));
+    try {
+      await ref.read(authRepositoryProvider).saveProfile(
+            userId: userId,
+            fullName: _nameCtrl.text.trim(),
+            phone: _phoneCtrl.text.trim(),
+          );
+    } catch (_) {
+      // Abaikan; prefill berikutnya cukup memakai data form saat ini.
+    }
   }
 
   @override
@@ -82,7 +90,9 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
 
     if (!auth.isLoggedIn) {
       ScaffoldMessenger.of(context).showSnackBar(
-        const SnackBar(content: Text('Silakan login terlebih dahulu'), backgroundColor: Colors.red),
+        const SnackBar(
+            content: Text('Silakan login terlebih dahulu'),
+            backgroundColor: Colors.red),
       );
       return;
     }
@@ -92,13 +102,12 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
           shippingAddress: _addressCtrl.text.trim(),
           customerName: _nameCtrl.text.trim(),
           customerPhone: _phoneCtrl.text.trim(),
-          notes:
-              _notesCtrl.text.trim().isEmpty ? null : _notesCtrl.text.trim(),
+          notes: _notesCtrl.text.trim().isEmpty ? null : _notesCtrl.text.trim(),
           idempotencyKey: _idempotencyKey,
         );
     await cart.fetchCart();
     // Simpan balik agar prefill berikutnya terisi (diam-diam, jangan blokir sukses).
-    _saveProfile(auth.user?.id);
+    unawaited(_saveProfile(auth.user?.id));
     if (!mounted) return;
     res.fold(
       (confirmation) {
@@ -111,9 +120,8 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
         // Tampilkan pesan server utuh (nama produk ikut terkirim).
         ScaffoldMessenger.of(context).showSnackBar(
           SnackBar(
-              content: Text(f.message.isEmpty
-                  ? 'Gagal membuat pesanan.'
-                  : f.message),
+              content: Text(
+                  f.message.isEmpty ? 'Gagal membuat pesanan.' : f.message),
               backgroundColor: Colors.red),
         );
       },
@@ -153,12 +161,14 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           Text('Produk (${cart.itemCount})',
-                              style: const TextStyle(fontSize: 15, fontWeight: FontWeight.w600)),
+                              style: const TextStyle(
+                                  fontSize: 15, fontWeight: FontWeight.w600)),
                           const SizedBox(height: 8),
                           ...cart.items.map((item) => Padding(
                                 padding: const EdgeInsets.only(bottom: 6),
                                 child: Row(
-                                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                                  mainAxisAlignment:
+                                      MainAxisAlignment.spaceBetween,
                                   children: [
                                     Expanded(
                                       child: Text(
@@ -169,8 +179,11 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
                                       ),
                                     ),
                                     Text(
-                                      formatRupiah((item.price * item.quantity).round()),
-                                      style: const TextStyle(fontSize: 13, fontWeight: FontWeight.w500),
+                                      formatRupiah(
+                                          (item.price * item.quantity).round()),
+                                      style: const TextStyle(
+                                          fontSize: 13,
+                                          fontWeight: FontWeight.w500),
                                     ),
                                   ],
                                 ),
@@ -179,9 +192,13 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
                           Row(
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
-                              const Text('Ongkir', style: TextStyle(fontSize: 13)),
+                              const Text('Ongkir',
+                                  style: TextStyle(fontSize: 13)),
                               Text('Rp 0 (GRATIS)',
-                                  style: TextStyle(fontSize: 13, color: Colors.green[700], fontWeight: FontWeight.w600)),
+                                  style: TextStyle(
+                                      fontSize: 13,
+                                      color: Colors.green[700],
+                                      fontWeight: FontWeight.w600)),
                             ],
                           ),
                           const SizedBox(height: 6),
@@ -189,10 +206,14 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
                             mainAxisAlignment: MainAxisAlignment.spaceBetween,
                             children: [
                               const Text('Total',
-                                  style: TextStyle(fontSize: 15, fontWeight: FontWeight.w600)),
+                                  style: TextStyle(
+                                      fontSize: 15,
+                                      fontWeight: FontWeight.w600)),
                               Text(formatRupiah(cart.totalPrice),
                                   style: const TextStyle(
-                                      fontSize: 17, fontWeight: FontWeight.bold, color: AppColors.brand)),
+                                      fontSize: 17,
+                                      fontWeight: FontWeight.bold,
+                                      color: AppColors.brand)),
                             ],
                           ),
                         ],
@@ -209,26 +230,33 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
                         crossAxisAlignment: CrossAxisAlignment.start,
                         children: [
                           const Text('Data Penerima',
-                              style: TextStyle(fontSize: 15, fontWeight: FontWeight.w600)),
+                              style: TextStyle(
+                                  fontSize: 15, fontWeight: FontWeight.w600)),
                           const SizedBox(height: 12),
                           TextFormField(
                             controller: _nameCtrl,
                             decoration: _deco('Nama Lengkap'),
-                            validator: (v) => (v == null || v.trim().isEmpty) ? 'Nama wajib diisi' : null,
+                            validator: (v) => (v == null || v.trim().isEmpty)
+                                ? 'Nama wajib diisi'
+                                : null,
                           ),
                           const SizedBox(height: 12),
                           TextFormField(
                             controller: _phoneCtrl,
                             keyboardType: TextInputType.phone,
                             decoration: _deco('No. WhatsApp'),
-                            validator: (v) => (v == null || v.trim().isEmpty) ? 'Nomor wajib diisi' : null,
+                            validator: (v) => (v == null || v.trim().isEmpty)
+                                ? 'Nomor wajib diisi'
+                                : null,
                           ),
                           const SizedBox(height: 12),
                           TextFormField(
                             controller: _addressCtrl,
                             maxLines: 3,
                             decoration: _deco('Alamat Lengkap Pengiriman'),
-                            validator: (v) => (v == null || v.trim().isEmpty) ? 'Alamat wajib diisi' : null,
+                            validator: (v) => (v == null || v.trim().isEmpty)
+                                ? 'Alamat wajib diisi'
+                                : null,
                           ),
                           const SizedBox(height: 12),
                           TextFormField(
@@ -249,14 +277,16 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
                       ),
                       child: Row(
                         children: [
-                          const Icon(Icons.payment, size: 20, color: AppColors.warning),
+                          const Icon(Icons.payment,
+                              size: 20, color: AppColors.warning),
                           const SizedBox(width: 10),
                           Expanded(
                             child: Text(
                               StoreConfig.hasBank
                                   ? 'Bayar via transfer ${StoreConfig.bankName} ${StoreConfig.accountNumber} (a.n. ${StoreConfig.accountHolder}), lalu konfirmasi via WhatsApp.'
-                                  : 'Bayar via transfer bank, lalu konfirmasi via WhatsApp ${StoreConfig.waDisplay}. No. rekening tertera setelah pesanan dibuat.',
-                              style: TextStyle(fontSize: 12, color: Colors.grey[700]),
+                                  : 'Bayar via transfer bank. Nomor rekening dikirim melalui WhatsApp ${StoreConfig.waDisplay} setelah pesanan dibuat, lalu konfirmasi transfer dengan kode pesanan.',
+                              style: TextStyle(
+                                  fontSize: 12, color: Colors.grey[700]),
                             ),
                           ),
                         ],
@@ -298,5 +328,4 @@ class _CheckoutScreenState extends ConsumerState<CheckoutScreen> {
       ),
     );
   }
-
 }

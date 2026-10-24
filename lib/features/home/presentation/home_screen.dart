@@ -1,6 +1,5 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
-import 'dart:async';
 
 import 'package:zunixe_corp_mobile/features/auth/auth.dart';
 import 'package:zunixe_corp_mobile/features/cart/cart.dart';
@@ -27,54 +26,15 @@ class HomeScreen extends ConsumerStatefulWidget {
   ConsumerState<HomeScreen> createState() => _HomeScreenState();
 }
 
-/// Sisa waktu promo hingga akhir bulan — fungsi murni agar dapat diuji.
-/// Mengembalikan (hari, jam, menit, detik).
-({int days, int hours, int minutes, int seconds}) promoCountdown(DateTime now) {
-  final endOfMonth =
-      DateTime(now.year, now.month + 1, 1).subtract(const Duration(seconds: 1));
-  final diff = endOfMonth.difference(now);
-  if (diff.inSeconds < 0) return (days: 0, hours: 0, minutes: 0, seconds: 0);
-  return (
-    days: diff.inDays,
-    hours: diff.inHours % 24,
-    minutes: diff.inMinutes % 60,
-    seconds: diff.inSeconds % 60,
-  );
-}
-
 class _HomeScreenState extends ConsumerState<HomeScreen> {
   List<Product> _products = [];
   bool _loadingProducts = true;
   String? _productsError;
-  int _promoSeconds = 0;
-  int _promoMinutes = 0;
-  int _promoHours = 0;
-  int _promoDays = 0;
-
-  Timer? _timer;
 
   @override
   void initState() {
     super.initState();
     _loadProducts();
-    _tick();
-    _timer = Timer.periodic(const Duration(seconds: 1), (_) => _tick());
-  }
-
-  @override
-  void dispose() {
-    _timer?.cancel();
-    super.dispose();
-  }
-
-  void _tick() {
-    final cd = promoCountdown(DateTime.now());
-    setState(() {
-      _promoDays = cd.days;
-      _promoHours = cd.hours;
-      _promoMinutes = cd.minutes;
-      _promoSeconds = cd.seconds;
-    });
   }
 
   Future<void> _loadProducts() async {
@@ -82,8 +42,7 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
       _loadingProducts = true;
       _productsError = null;
     });
-    final res =
-        await ref.read(productRepositoryProvider).getProducts();
+    final res = await ref.read(productRepositoryProvider).getProducts();
     // Tanpa fallback dummy: harga/stok fiktif berbahaya (tombol Beli aktif).
     if (!mounted) return;
     res.fold(
@@ -93,8 +52,9 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
       }),
       (f) => setState(() {
         _loadingProducts = false;
-        _productsError =
-            f.message.isEmpty ? 'Gagal memuat produk. Periksa koneksi.' : f.message;
+        _productsError = f.message.isEmpty
+            ? 'Gagal memuat produk. Periksa koneksi.'
+            : f.message;
       }),
     );
   }
@@ -134,17 +94,11 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
                   const HeroSection(),
                   const BannerCarousel(),
                   const FeaturedProduct(),
-                  SuperPromo(
-                    days: _promoDays,
-                    hours: _promoHours,
-                    minutes: _promoMinutes,
-                    seconds: _promoSeconds,
-                  ),
+                  const SuperPromo(),
                   ProductSection(
                       title: 'Rekomendasi',
                       products: _products.take(4).toList()),
-                  ProductSection(
-                      title: 'Produk Terbaru', products: _products),
+                  ProductSection(title: 'Produk Terbaru', products: _products),
                   CatalogNotice(
                     loading: _loadingProducts,
                     error: _productsError,
@@ -161,5 +115,4 @@ class _HomeScreenState extends ConsumerState<HomeScreen> {
       ),
     );
   }
-
 }

@@ -60,7 +60,7 @@ class AppHeader extends StatelessWidget {
       return Builder(
         builder: (ctx) => IconButton(
           icon: const Icon(Icons.menu, size: 24, color: AppColors.ink),
-          constraints: const BoxConstraints(minWidth: 40, minHeight: 40),
+          constraints: const BoxConstraints(minWidth: 48, minHeight: 48),
           tooltip: 'Menu',
           onPressed: onMenu ?? () => Scaffold.of(ctx).openDrawer(),
         ),
@@ -69,7 +69,7 @@ class AppHeader extends StatelessWidget {
     if (showBack) {
       return IconButton(
         icon: const Icon(Icons.arrow_back, size: 22, color: AppColors.ink),
-        constraints: const BoxConstraints(minWidth: 40, minHeight: 40),
+        constraints: const BoxConstraints(minWidth: 48, minHeight: 48),
         tooltip: 'Kembali',
         onPressed: onBack ?? () => _handleBack(context),
       );
@@ -83,7 +83,7 @@ class AppHeader extends StatelessWidget {
       if (showSearch)
         IconButton(
           icon: const Icon(Icons.search, size: 22, color: AppColors.ink),
-          constraints: const BoxConstraints(minWidth: 40, minHeight: 40),
+          constraints: const BoxConstraints(minWidth: 48, minHeight: 48),
           tooltip: 'Cari',
           onPressed: onSearch,
         ),
@@ -92,8 +92,9 @@ class AppHeader extends StatelessWidget {
           clipBehavior: Clip.none,
           children: [
             IconButton(
-              icon: const Icon(Icons.shopping_cart_outlined, size: 22, color: AppColors.ink),
-              constraints: const BoxConstraints(minWidth: 40, minHeight: 40),
+              icon: const Icon(Icons.shopping_cart_outlined,
+                  size: 22, color: AppColors.ink),
+              constraints: const BoxConstraints(minWidth: 48, minHeight: 48),
               tooltip: 'Keranjang',
               onPressed: onCart,
             ),
@@ -103,10 +104,14 @@ class AppHeader extends StatelessWidget {
                 top: 2,
                 child: Container(
                   padding: const EdgeInsets.all(3),
-                  decoration: const BoxDecoration(color: AppColors.brand, shape: BoxShape.circle),
+                  decoration: const BoxDecoration(
+                      color: AppColors.brand, shape: BoxShape.circle),
                   child: Text(
                     '$cartCount',
-                    style: const TextStyle(color: Colors.white, fontSize: 9, fontWeight: FontWeight.bold),
+                    style: const TextStyle(
+                        color: Colors.white,
+                        fontSize: 9,
+                        fontWeight: FontWeight.bold),
                   ),
                 ),
               ),
@@ -114,8 +119,9 @@ class AppHeader extends StatelessWidget {
         ),
       if (showProfile)
         IconButton(
-          icon: const Icon(Icons.person_outline, size: 22, color: AppColors.ink),
-          constraints: const BoxConstraints(minWidth: 40, minHeight: 40),
+          icon:
+              const Icon(Icons.person_outline, size: 22, color: AppColors.ink),
+          constraints: const BoxConstraints(minWidth: 48, minHeight: 48),
           tooltip: 'Akun',
           onPressed: onProfile,
         ),
@@ -142,7 +148,10 @@ class AppHeader extends StatelessWidget {
                     title,
                     maxLines: 1,
                     overflow: TextOverflow.ellipsis,
-                    style: const TextStyle(fontSize: 16, fontWeight: FontWeight.w700, color: AppColors.ink),
+                    style: const TextStyle(
+                        fontSize: 16,
+                        fontWeight: FontWeight.w700,
+                        color: AppColors.ink),
                   ),
                   if (subtitle != null)
                     Text(
@@ -160,7 +169,10 @@ class AppHeader extends StatelessWidget {
                 title,
                 maxLines: 1,
                 overflow: TextOverflow.ellipsis,
-                style: const TextStyle(fontSize: 17, fontWeight: FontWeight.w700, color: AppColors.ink),
+                style: const TextStyle(
+                    fontSize: 17,
+                    fontWeight: FontWeight.w700,
+                    color: AppColors.ink),
               ),
             )
           else if (subtitle != null)

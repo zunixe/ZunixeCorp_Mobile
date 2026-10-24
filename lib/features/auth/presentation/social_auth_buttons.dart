@@ -18,8 +18,7 @@ class SocialAuthButtons extends ConsumerStatefulWidget {
   });
 
   @override
-  ConsumerState<SocialAuthButtons> createState() =>
-      _SocialAuthButtonsState();
+  ConsumerState<SocialAuthButtons> createState() => _SocialAuthButtonsState();
 }
 
 class _SocialAuthButtonsState extends ConsumerState<SocialAuthButtons> {
@@ -50,8 +49,7 @@ class _SocialAuthButtonsState extends ConsumerState<SocialAuthButtons> {
     setState(() => _pending = null);
     ScaffoldMessenger.of(context).showSnackBar(
       const SnackBar(
-          content: Text('Login dibatalkan.'),
-          backgroundColor: AppColors.brand),
+          content: Text('Login dibatalkan.'), backgroundColor: AppColors.brand),
     );
   }
 
@@ -86,10 +84,12 @@ class _SocialAuthButtonsState extends ConsumerState<SocialAuthButtons> {
   Widget build(BuildContext context) {
     // Gagal tukar OAuth code (mis. email FB tak terbaca) datang sebagai
     // stream error → reset spinner + tampilkan pesan, jangan muter terus.
+    // StreamProvider menyerahkan error sebagai `AsyncError` (bukan callback
+    // `onError`), jadi periksa `next.hasError`.
     ref.listen(authEventsProvider, (_, next) {
-      next.whenData((_) {});
-    }, onError: (Object e, _) {
+      if (!next.hasError) return;
       if (!mounted || _pending == null) return;
+      final e = next.error;
       _fail(_pending == 'google' ? 'Google' : 'Facebook',
           e is AuthException ? e.message : 'coba lagi.');
     });
@@ -128,8 +128,7 @@ class _SocialAuthButtonsState extends ConsumerState<SocialAuthButtons> {
           busy: _pending == 'facebook',
           onTap: busy
               ? null
-              : () =>
-                  _go(notifier.signInWithFacebook, 'facebook', 'Facebook'),
+              : () => _go(notifier.signInWithFacebook, 'facebook', 'Facebook'),
         ),
         if (busy)
           TextButton(

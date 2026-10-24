@@ -63,14 +63,14 @@ void main() {
     final controller = StreamController<AuthState>.broadcast();
     final repo = mockAuthRepo(stream: controller.stream);
     when(() => repo.signInWithPassword(
-          email: any(named: 'email'),
-          password: any(named: 'password'),
-        )).thenAnswer(
-        (_) async => AuthResponse(user: buildUser(email: 'a@b.com')));
+              email: any(named: 'email'),
+              password: any(named: 'password'),
+            ))
+        .thenAnswer(
+            (_) async => AuthResponse(user: buildUser(email: 'a@b.com')));
     await pumpRiverpod(tester, const LoginScreen(), authRepository: repo);
     // Login email via form: lastMethod password.
-    await tester.enterText(
-        find.widgetWithText(TextField, 'Email'), 'a@b.com');
+    await tester.enterText(find.widgetWithText(TextField, 'Email'), 'a@b.com');
     await tester.enterText(
         find.widgetWithText(TextField, 'Password'), 'secret');
     await tester.tap(find.widgetWithText(GradientButton, 'Masuk'));

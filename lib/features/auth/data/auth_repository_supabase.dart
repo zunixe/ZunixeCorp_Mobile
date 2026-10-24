@@ -16,8 +16,7 @@ class AuthRepositorySupabase implements AuthRepository {
   User? get currentUser => _client.auth.currentUser;
 
   @override
-  Stream<AuthState> get onAuthStateChange =>
-      _client.auth.onAuthStateChange;
+  Stream<AuthState> get onAuthStateChange => _client.auth.onAuthStateChange;
 
   @override
   Future<AuthResponse> signInWithPassword({
@@ -58,22 +57,27 @@ class AuthRepositorySupabase implements AuthRepository {
   Future<void> signOut() => _client.auth.signOut();
 
   @override
-  Future<({String fullName, String phone})?> getProfile(
-      String userId) async {
+  Future<void> deleteAccount() async {
+    await _client.rpc('delete_account');
     try {
-      final row = await _client
-          .from('profiles')
-          .select('full_name, phone')
-          .eq('id', userId)
-          .maybeSingle();
-      if (row == null) return null;
-      return (
-        fullName: (row['full_name'] ?? '').toString(),
-        phone: (row['phone'] ?? '').toString(),
-      );
+      await _client.auth.signOut();
     } catch (_) {
-      return null;
+      // Sesi sudah tidak valid setelah user dihapus; abaikan.
     }
+  }
+
+  @override
+  Future<({String fullName, String phone})?> getProfile(String userId) async {
+    final row = await _client
+        .from('profiles')
+        .select('full_name, phone')
+        .eq('id', userId)
+        .maybeSingle();
+    if (row == null) return null;
+    return (
+      fullName: (row['full_name'] ?? '').toString(),
+      phone: (row['phone'] ?? '').toString(),
+    );
   }
 
   @override
@@ -82,11 +86,9 @@ class AuthRepositorySupabase implements AuthRepository {
     required String fullName,
     required String phone,
   }) async {
-    try {
-      await _client.from('profiles').update({
-        'full_name': fullName,
-        'phone': phone,
-      }).eq('id', userId);
-    } catch (_) {}
+    await _client.from('profiles').update({
+      'full_name': fullName,
+      'phone': phone,
+    }).eq('id', userId);
   }
 }

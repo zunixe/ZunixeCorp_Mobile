@@ -14,7 +14,7 @@ import 'package:zunixe_corp_mobile/features/auth/auth.dart';
 import '../../helpers/fakes.dart';
 import '../../helpers/fake_http.dart';
 import '../../helpers/riverpod_scope.dart';
-import 'package:zunixe_corp_mobile/features/home/home.dart';
+import 'package:zunixe_corp_mobile/app/main_shell.dart';
 
 void main() {
   HttpOverrides? previous;
@@ -46,8 +46,7 @@ void main() {
           limit: any(named: 'limit'),
           sort: any(named: 'sort'),
         )).thenAnswer((_) async => const Result.ok([]));
-    when(() => pr.getCategories())
-        .thenAnswer((_) async => const Result.ok([]));
+    when(() => pr.getCategories()).thenAnswer((_) async => const Result.ok([]));
     final cr = cartRepo ??
         (() {
           final c = MockCartRepository();
@@ -58,8 +57,7 @@ void main() {
     return tester.pumpWidget(
       ProviderScope(
         overrides: [
-          authRepositoryProvider.overrideWithValue(
-              authRepo ?? mockAuthRepo()),
+          authRepositoryProvider.overrideWithValue(authRepo ?? mockAuthRepo()),
           cartRepositoryProvider.overrideWithValue(cr),
           productRepositoryProvider.overrideWithValue(pr),
         ],
@@ -83,8 +81,7 @@ void main() {
           limit: any(named: 'limit'),
           sort: any(named: 'sort'),
         )).thenAnswer((_) async => const Result.ok([]));
-    when(() => pr.getCategories())
-        .thenAnswer((_) async => const Result.ok([]));
+    when(() => pr.getCategories()).thenAnswer((_) async => const Result.ok([]));
     final cr = cartRepo ??
         (() {
           final c = MockCartRepository();
@@ -128,7 +125,7 @@ void main() {
     await tester.pump();
     await tester.pump();
     // Tab produk (ProductsScreen) tampil.
-    expect(find.text('Semua'), findsOneWidget);
+    expect(find.text('Terbaru'), findsOneWidget);
   });
 
   testWidgets('badge cart tampil saat ada item', (tester) async {
@@ -157,8 +154,7 @@ void main() {
       (tester) async {
     final controller = StreamController<AuthState>.broadcast();
     await pumpWithRouter(tester,
-        authRepo: mockAuthRepo(
-            user: buildUser(), stream: controller.stream));
+        authRepo: mockAuthRepo(user: buildUser(), stream: controller.stream));
     await tester.pump();
     // Event pertama melewatkan AuthGate (MainShell subscribe setelahnya,
     // seperti alur produksi: sesi pulih dulu, link diklik kemudian).

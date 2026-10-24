@@ -69,16 +69,22 @@ class _MainShellState extends ConsumerState<MainShell> {
           selectedFontSize: 11,
           unselectedFontSize: 11,
           items: [
-            const BottomNavigationBarItem(icon: Icon(Icons.home), label: 'Home'),
-            const BottomNavigationBarItem(icon: Icon(Icons.grid_view), label: 'Produk'),
+            const BottomNavigationBarItem(
+                icon: Icon(Icons.home), label: 'Home'),
+            const BottomNavigationBarItem(
+                icon: Icon(Icons.grid_view), label: 'Produk'),
             BottomNavigationBarItem(
               icon: itemCount > 0
-                  ? Badge(label: Text('$itemCount'), child: const Icon(Icons.shopping_cart))
+                  ? Badge(
+                      label: Text('$itemCount'),
+                      child: const Icon(Icons.shopping_cart))
                   : const Icon(Icons.shopping_cart),
               label: 'Keranjang',
             ),
-            const BottomNavigationBarItem(icon: Icon(Icons.person), label: 'Akun'),
-            const BottomNavigationBarItem(icon: Icon(Icons.chat), label: 'Chat'),
+            const BottomNavigationBarItem(
+                icon: Icon(Icons.person), label: 'Akun'),
+            const BottomNavigationBarItem(
+                icon: Icon(Icons.chat), label: 'Chat'),
           ],
         ),
       ),

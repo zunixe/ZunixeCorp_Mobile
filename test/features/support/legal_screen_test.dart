@@ -18,8 +18,8 @@ void main() {
   testWidgets('privacy', (tester) async {
     await pump(tester, 'privacy');
     expect(find.text('Kebijakan Privasi'), findsOneWidget);
-    expect(find.textContaining('tidak dibagikan ke pihak ketiga'),
-        findsOneWidget);
+    expect(
+        find.textContaining('tidak dibagikan ke pihak ketiga'), findsOneWidget);
   });
 
   testWidgets('shipping', (tester) async {

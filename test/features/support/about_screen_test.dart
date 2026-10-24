@@ -39,7 +39,8 @@ void main() {
 
   testWidgets('3 item layanan tampil', (tester) async {
     await pump(tester);
-    expect(find.text('Produk berkualitas dengan harga terbaik'), findsOneWidget);
+    expect(
+        find.text('Produk berkualitas dengan harga terbaik'), findsOneWidget);
     expect(find.text('Pengiriman cepat & aman ke seluruh Indonesia'),
         findsOneWidget);
     expect(find.text('Dukungan teknis responsif'), findsOneWidget);

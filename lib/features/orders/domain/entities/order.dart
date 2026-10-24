@@ -31,11 +31,15 @@ class Order {
   final String orderCode;
   final String status;
   final String paymentStatus;
+  final int subtotal;
+  final int shippingCost;
   final int total;
   final DateTime? createdAt;
   final String shippingAddress;
   final String customerPhone;
   final String notes;
+  final String paymentProofUrl;
+  final String trackingNumber;
   final List<OrderItem> items;
 
   const Order({
@@ -43,15 +47,22 @@ class Order {
     required this.orderCode,
     this.status = 'pending',
     this.paymentStatus = 'unpaid',
+    this.subtotal = 0,
+    this.shippingCost = 0,
     this.total = 0,
     this.createdAt,
     this.shippingAddress = '',
     this.customerPhone = '',
     this.notes = '',
+    this.paymentProofUrl = '',
+    this.trackingNumber = '',
     this.items = const [],
   });
 
   bool get isPaid => paymentStatus == 'paid';
+
+  /// Bukti transfer sudah diunggah, menunggu admin memverifikasi.
+  bool get isAwaitingConfirmation => paymentStatus == 'waiting_confirmation';
 
   /// Dapat dibatalkan: belum bayar + masih pending/processing.
   bool get canCancel =>
@@ -72,11 +83,15 @@ class Order {
       orderCode: (m['order_code'] ?? '-').toString(),
       status: (m['status'] ?? 'pending').toString(),
       paymentStatus: (m['payment_status'] ?? 'unpaid').toString(),
+      subtotal: (m['subtotal'] as num?)?.toInt() ?? 0,
+      shippingCost: (m['shipping_cost'] as num?)?.toInt() ?? 0,
       total: (m['total'] as num?)?.toInt() ?? 0,
       createdAt: DateTime.tryParse(m['created_at']?.toString() ?? ''),
       shippingAddress: (m['shipping_address'] ?? '').toString(),
       customerPhone: (m['customer_phone'] ?? '').toString(),
       notes: (m['notes'] ?? '').toString(),
+      paymentProofUrl: (m['payment_proof_url'] ?? '').toString(),
+      trackingNumber: (m['tracking_number'] ?? '').toString(),
       items: items,
     );
   }

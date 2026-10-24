@@ -19,12 +19,10 @@ class CartRepositorySupabase implements CartRepository {
           .select('*, products(stock)')
           .eq('user_id', userId)
           .order('created_at', ascending: true);
-      final items =
-          (rows as List).map((r) => CartItem.fromRow(r)).toList();
+      final items = (rows as List).map((r) => CartItem.fromRow(r)).toList();
       return Result.ok(items);
     } catch (e) {
-      return Result.err(Failure.from(e,
-          fallback: 'Gagal memuat keranjang'));
+      return Result.err(Failure.from(e, fallback: 'Gagal memuat keranjang'));
     }
   }
 
@@ -58,8 +56,7 @@ class CartRepositorySupabase implements CartRepository {
       }
       return const Result.ok(null);
     } catch (e) {
-      return Result.err(
-          Failure.from(e, fallback: 'Gagal memperbarui jumlah'));
+      return Result.err(Failure.from(e, fallback: 'Gagal memperbarui jumlah'));
     }
   }
 
@@ -69,8 +66,7 @@ class CartRepositorySupabase implements CartRepository {
       await _client.from('cart_items').delete().eq('id', itemId);
       return const Result.ok(null);
     } catch (e) {
-      return Result.err(
-          Failure.from(e, fallback: 'Gagal menghapus item'));
+      return Result.err(Failure.from(e, fallback: 'Gagal menghapus item'));
     }
   }
 

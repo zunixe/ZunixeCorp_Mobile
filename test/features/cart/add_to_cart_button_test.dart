@@ -27,13 +27,14 @@ void main() {
       ProviderScope(
         overrides: [
           cartRepositoryProvider.overrideWithValue(cr),
-          authRepositoryProvider.overrideWithValue(
-              authRepo ?? mockAuthRepo()),
+          authRepositoryProvider.overrideWithValue(authRepo ?? mockAuthRepo()),
         ],
         child: MaterialApp(
           home: Scaffold(
             body: AddToCartButton(
-              product: buildProduct(stock: stock),
+              productId: 'p1',
+              productName: 'Produk Uji',
+              stock: stock,
               compact: compact,
               expand: expand,
               label: label,
@@ -56,8 +57,7 @@ void main() {
     return cr;
   }
 
-  MockAuthRepository loggedIn() =>
-      mockAuthRepo(user: buildUser(id: 'u1'));
+  MockAuthRepository loggedIn() => mockAuthRepo(user: buildUser(id: 'u1'));
 
   testWidgets('stok habis -> tombol mati Stok Habis', (tester) async {
     final cr = MockCartRepository();
@@ -97,8 +97,7 @@ void main() {
     await tester.pump();
     await tester.pump();
     expect(find.text('Belum Login'), findsOneWidget);
-    expect(
-        find.text('Login dulu yuk biar bisa menambah produk ke keranjang.'),
+    expect(find.text('Login dulu yuk biar bisa menambah produk ke keranjang.'),
         findsOneWidget);
   });
 
@@ -125,14 +124,17 @@ void main() {
       routes: [
         GoRoute(
           path: '/',
-          builder: (_, __) => Scaffold(
-            body: AddToCartButton(product: buildProduct()),
+          builder: (_, __) => const Scaffold(
+            body: AddToCartButton(
+              productId: 'p1',
+              productName: 'Produk Uji',
+              stock: 5,
+            ),
           ),
         ),
         GoRoute(
           path: AppRoutes.login,
-          builder: (_, __) =>
-              const Scaffold(body: Text('Halaman Login')),
+          builder: (_, __) => const Scaffold(body: Text('Halaman Login')),
         ),
       ],
     );
@@ -157,10 +159,10 @@ void main() {
     when(() => cr.fetchCart(any()))
         .thenAnswer((_) async => const Result.ok([]));
     when(() => cr.addToCart(
-          productId: any(named: 'productId'),
-          quantity: any(named: 'quantity'),
-        )).thenAnswer(
-        (_) async => const Result.err(ServerFailure('Stok habis')));
+              productId: any(named: 'productId'),
+              quantity: any(named: 'quantity'),
+            ))
+        .thenAnswer((_) async => const Result.err(ServerFailure('Stok habis')));
     await pump(tester, cartRepo: cr, authRepo: loggedIn());
     await tester.tap(find.text('Beli'));
     await tester.pump();

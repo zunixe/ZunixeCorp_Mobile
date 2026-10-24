@@ -19,6 +19,10 @@ class ProductsScreen extends ConsumerStatefulWidget {
 class _ProductsScreenState extends ConsumerState<ProductsScreen> {
   ProductRepository get _repository => ref.read(productRepositoryProvider);
   final ScrollController _scroll = ScrollController();
+  final TextEditingController _searchCtrl = TextEditingController();
+
+  /// Nomor permintaan terakhir; respons lama (filter sebelumnya) dibuang.
+  int _requestId = 0;
 
   List<Product> _items = [];
   List<String> _cats = [];
@@ -43,12 +47,13 @@ class _ProductsScreenState extends ConsumerState<ProductsScreen> {
   @override
   void dispose() {
     _scroll.dispose();
+    _searchCtrl.dispose();
     super.dispose();
   }
 
   void _onScroll() {
-    if (_scroll.position.pixels >=
-            _scroll.position.maxScrollExtent - 400 &&
+    if (_scroll.position.maxScrollExtent <= 0) return;
+    if (_scroll.position.pixels >= _scroll.position.maxScrollExtent - 400 &&
         !_loading &&
         !_loadingMore &&
         _hasMore &&
@@ -68,9 +73,11 @@ class _ProductsScreenState extends ConsumerState<ProductsScreen> {
   }
 
   Future<void> _load({bool reset = false}) async {
+    final requestId = ++_requestId;
     if (reset) {
       setState(() {
         _loading = true;
+        _loadingMore = false;
         _error = null;
         _items = [];
         _hasMore = true;
@@ -85,7 +92,8 @@ class _ProductsScreenState extends ConsumerState<ProductsScreen> {
       offset: offset,
       sort: _sort,
     );
-    if (!mounted) return;
+    // Abaikan respons usang (filter/pencarian sudah berubah).
+    if (!mounted || requestId != _requestId) return;
     res.fold(
       (rows) => setState(() {
         _items = reset ? rows : [..._items, ...rows];
@@ -101,7 +109,12 @@ class _ProductsScreenState extends ConsumerState<ProductsScreen> {
     );
   }
 
-  void _reload() => _load(reset: true);
+  void _reload() {
+    // Set loading lebih dulu agar listener scroll tidak memicu load-more,
+    // lalu kembali ke atas supaya hasil filter baru tidak nyangkut di bawah.
+    _load(reset: true);
+    if (_scroll.hasClients) _scroll.jumpTo(0);
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -205,8 +218,7 @@ class _ProductsScreenState extends ConsumerState<ProductsScreen> {
             const SizedBox(height: 16),
             OutlinedButton(
               onPressed: _reload,
-              style: OutlinedButton.styleFrom(
-                  foregroundColor: AppColors.brand),
+              style: OutlinedButton.styleFrom(foregroundColor: AppColors.brand),
               child: const Text('Coba Lagi'),
             ),
           ],
@@ -216,18 +228,18 @@ class _ProductsScreenState extends ConsumerState<ProductsScreen> {
   }
 
   void _showSearchDialog() {
-    final ctrl = TextEditingController(text: _search);
+    _searchCtrl.text = _search;
     showDialog<void>(
       context: context,
       builder: (dialogContext) => AlertDialog(
         title: const Text('Cari Produk'),
         content: TextField(
-          controller: ctrl,
+          controller: _searchCtrl,
           autofocus: true,
           decoration: const InputDecoration(hintText: 'Ketik nama produk...'),
           onSubmitted: (_) {
             Navigator.pop(dialogContext);
-            setState(() => _search = ctrl.text.trim());
+            setState(() => _search = _searchCtrl.text.trim());
             _reload();
           },
         ),
@@ -239,7 +251,7 @@ class _ProductsScreenState extends ConsumerState<ProductsScreen> {
           TextButton(
             onPressed: () {
               Navigator.pop(dialogContext);
-              setState(() => _search = ctrl.text.trim());
+              setState(() => _search = _searchCtrl.text.trim());
               _reload();
             },
             child: const Text('Cari'),
@@ -257,26 +269,27 @@ class _ProductsScreenState extends ConsumerState<ProductsScreen> {
         children: [
           Row(
             children: [
-              const Icon(Icons.filter_list,
-                  size: 18, color: AppColors.brand),
-              const SizedBox(width: 8),
-              Expanded(
-                child: SingleChildScrollView(
-                  scrollDirection: Axis.horizontal,
-                  child: Row(
-                    children: [
-                      _catChip('', 'Semua'),
-                      ..._cats.map((c) => _catChip(c, c)),
-                    ],
+              if (_cats.isNotEmpty) ...[
+                const Icon(Icons.filter_list, size: 18, color: AppColors.brand),
+                const SizedBox(width: 8),
+                Expanded(
+                  child: SingleChildScrollView(
+                    scrollDirection: Axis.horizontal,
+                    child: Row(
+                      children: [
+                        _catChip('', 'Semua'),
+                        ..._cats.map((c) => _catChip(c, c)),
+                      ],
+                    ),
                   ),
                 ),
-              ),
-              const SizedBox(width: 8),
+                const SizedBox(width: 8),
+              ] else
+                const Spacer(),
               DropdownButton<String>(
                 value: _sortLabel,
                 underline: const SizedBox(),
-                icon: const Icon(Icons.arrow_drop_down,
-                    color: AppColors.ink),
+                icon: const Icon(Icons.arrow_drop_down, color: AppColors.ink),
                 items: kProductSortLabels.map((e) {
                   return DropdownMenuItem(
                       value: e,
@@ -299,8 +312,8 @@ class _ProductsScreenState extends ConsumerState<ProductsScreen> {
                     child: Text('Hasil: "$_search"',
                         maxLines: 1,
                         overflow: TextOverflow.ellipsis,
-                        style: TextStyle(
-                            fontSize: 12, color: Colors.grey[600])),
+                        style:
+                            TextStyle(fontSize: 12, color: Colors.grey[600])),
                   ),
                   GestureDetector(
                     onTap: () {
@@ -336,11 +349,9 @@ class _ProductsScreenState extends ConsumerState<ProductsScreen> {
           _reload();
         },
         selectedColor: AppColors.brand,
-        labelStyle: TextStyle(
-            color: selected ? Colors.white : AppColors.ink),
+        labelStyle: TextStyle(color: selected ? Colors.white : AppColors.ink),
         backgroundColor: AppColors.chipFill,
-        shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(20)),
+        shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(20)),
       ),
     );
   }

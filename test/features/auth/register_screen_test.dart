@@ -34,11 +34,12 @@ void main() {
   MockAuthRepository baseRepo() {
     final repo = mockAuthRepo();
     when(() => repo.signUp(
-          email: any(named: 'email'),
-          password: any(named: 'password'),
-          data: any(named: 'data'),
-        )).thenAnswer(
-        (_) async => AuthResponse(user: buildUser(), session: null));
+              email: any(named: 'email'),
+              password: any(named: 'password'),
+              data: any(named: 'data'),
+            ))
+        .thenAnswer(
+            (_) async => AuthResponse(user: buildUser(), session: null));
     return repo;
   }
 
@@ -129,18 +130,18 @@ void main() {
   testWidgets('needVerification -> snackbar + ke /login', (tester) async {
     final repo = mockAuthRepo();
     when(() => repo.signUp(
-          email: any(named: 'email'),
-          password: any(named: 'password'),
-          data: any(named: 'data'),
-        )).thenAnswer(
-        (_) async => AuthResponse(user: buildUser(), session: null));
+              email: any(named: 'email'),
+              password: any(named: 'password'),
+              data: any(named: 'data'),
+            ))
+        .thenAnswer(
+            (_) async => AuthResponse(user: buildUser(), session: null));
     await pump(tester, repo);
     await fillValid(tester);
     await tester.tap(find.widgetWithText(GradientButton, 'Daftar'));
     await tester.pump();
     await tester.pump();
-    expect(
-        find.text('Pendaftaran berhasil! Cek email untuk verifikasi.'),
+    expect(find.text('Pendaftaran berhasil! Cek email untuk verifikasi.'),
         findsOneWidget);
     // Layar login nyata (bukan stub) tampil setelah pushReplacement.
     expect(find.text('Lanjutkan dengan Google'), findsOneWidget);

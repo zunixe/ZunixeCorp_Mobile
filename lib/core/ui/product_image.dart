@@ -1,3 +1,4 @@
+import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter/material.dart';
 import 'package:zunixe_corp_mobile/core/theme/app_colors.dart';
 
@@ -25,12 +26,14 @@ class ProductImage extends StatelessWidget {
   Widget build(BuildContext context) {
     if (url.isEmpty) return _placeholder();
     if (url.startsWith('http')) {
-      return Image.network(
-        url,
+      return Image(
+        image: CachedNetworkImageProvider(
+          url,
+          maxWidth: cacheWidth,
+        ),
         width: width,
         height: height,
         fit: fit,
-        cacheWidth: cacheWidth,
         loadingBuilder: (context, child, progress) {
           if (progress == null) return child;
           return Container(

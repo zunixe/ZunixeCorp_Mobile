@@ -23,6 +23,17 @@ abstract final class AppRoutes {
 
   /// Deep-link callback OAuth (harus terdaftar di Supabase dashboard).
   static const String oauthCallbackScheme = 'zunixe://login-callback';
+
+  /// Validasi tujuan "kembali setelah login": hanya path internal.
+  /// Menolak URL absolut/protocol-relative agar tidak jadi open redirect.
+  static String? safeInternalPath(String? raw) {
+    if (raw == null || raw.isEmpty) return null;
+    if (!raw.startsWith('/') || raw.startsWith('//')) return null;
+    final uri = Uri.tryParse(raw);
+    if (uri == null || uri.hasScheme || uri.hasAuthority) return null;
+    if (uri.path == login || uri.path == register) return null;
+    return raw;
+  }
 }
 
 /// Nama logis route untuk navigasi bertipe (`goNamed`/`pushNamed`).

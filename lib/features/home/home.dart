@@ -3,7 +3,6 @@
 library;
 
 export 'presentation/home_screen.dart';
-export 'presentation/main_shell.dart';
 export 'presentation/widgets/banner_carousel.dart';
 export 'presentation/widgets/catalog_notice.dart';
 export 'presentation/widgets/featured_product.dart';

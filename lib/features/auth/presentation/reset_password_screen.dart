@@ -13,7 +13,8 @@ class ResetPasswordScreen extends ConsumerStatefulWidget {
   const ResetPasswordScreen({super.key});
 
   @override
-  ConsumerState<ResetPasswordScreen> createState() => _ResetPasswordScreenState();
+  ConsumerState<ResetPasswordScreen> createState() =>
+      _ResetPasswordScreenState();
 }
 
 class _ResetPasswordScreenState extends ConsumerState<ResetPasswordScreen> {
@@ -100,8 +101,8 @@ class _ResetPasswordScreenState extends ConsumerState<ResetPasswordScreen> {
                       borderRadius: BorderRadius.circular(12)),
                   focusedBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(12),
-                    borderSide: const BorderSide(
-                        color: AppColors.brand, width: 1.6),
+                    borderSide:
+                        const BorderSide(color: AppColors.brand, width: 1.6),
                   ),
                 ),
                 validator: (v) {
@@ -124,8 +125,8 @@ class _ResetPasswordScreenState extends ConsumerState<ResetPasswordScreen> {
                       borderRadius: BorderRadius.circular(12)),
                   focusedBorder: OutlineInputBorder(
                     borderRadius: BorderRadius.circular(12),
-                    borderSide: const BorderSide(
-                        color: AppColors.brand, width: 1.6),
+                    borderSide:
+                        const BorderSide(color: AppColors.brand, width: 1.6),
                   ),
                 ),
                 validator: (v) =>

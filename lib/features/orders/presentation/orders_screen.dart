@@ -1,8 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:image_picker/image_picker.dart';
 import 'package:zunixe_corp_mobile/features/orders/orders.dart';
 import 'package:zunixe_corp_mobile/core/ui/app_header.dart';
-import 'package:zunixe_corp_mobile/features/checkout/checkout.dart';
 import 'package:zunixe_corp_mobile/core/utils/format.dart';
 import 'package:zunixe_corp_mobile/features/auth/auth.dart';
 import 'package:zunixe_corp_mobile/core/theme/app_colors.dart';
@@ -37,6 +37,7 @@ class _OrdersScreenState extends ConsumerState<OrdersScreen> {
   List<Order> _orders = [];
   bool _loading = true;
   String? _error;
+  String? _uploadingOrderId;
 
   @override
   void initState() {
@@ -66,6 +67,49 @@ class _OrdersScreenState extends ConsumerState<OrdersScreen> {
     );
   }
 
+  Future<void> _uploadProof(Order order) async {
+    final userId = ref.read(authNotifierProvider).user?.id;
+    if (userId == null) return;
+    final picked = await ImagePicker().pickImage(
+      source: ImageSource.gallery,
+      imageQuality: 75,
+      maxWidth: 1600,
+    );
+    if (picked == null || !mounted) return;
+
+    setState(() => _uploadingOrderId = order.id);
+    final messenger = ScaffoldMessenger.of(context);
+    final bytes = await picked.readAsBytes();
+    final ext = picked.name.contains('.') ? picked.name.split('.').last : 'jpg';
+    final res = await _repository.submitPaymentProof(
+      orderId: order.id,
+      userId: userId,
+      bytes: bytes,
+      fileExtension: ext,
+    );
+    if (!mounted) return;
+    setState(() => _uploadingOrderId = null);
+    res.fold(
+      (_) {
+        messenger.showSnackBar(
+          const SnackBar(
+            content: Text('Bukti transfer dikirim. Menunggu verifikasi admin.'),
+            backgroundColor: AppColors.success,
+          ),
+        );
+        _load();
+      },
+      (f) => messenger.showSnackBar(
+        SnackBar(
+          content: Text(f.message.isEmpty
+              ? 'Gagal mengunggah bukti transfer.'
+              : f.message),
+          backgroundColor: Colors.red,
+        ),
+      ),
+    );
+  }
+
   Future<void> _cancel(String orderId, String orderCode) async {
     final yes = await showDialog<bool>(
       context: context,
@@ -77,8 +121,7 @@ class _OrdersScreenState extends ConsumerState<OrdersScreen> {
         actions: [
           TextButton(
             onPressed: () => Navigator.pop(ctx, false),
-            child: const Text('Tidak',
-                style: TextStyle(color: AppColors.grey)),
+            child: const Text('Tidak', style: TextStyle(color: AppColors.grey)),
           ),
           ElevatedButton(
             onPressed: () => Navigator.pop(ctx, true),
@@ -120,6 +163,11 @@ class _OrdersScreenState extends ConsumerState<OrdersScreen> {
 
   @override
   Widget build(BuildContext context) {
+    // Login/logout saat layar ini terbuka → muat ulang daftar.
+    ref.listen(authNotifierProvider.select((s) => s.isLoggedIn), (prev, next) {
+      if (next == true && prev != true) _load();
+    });
+
     final isLoggedIn = ref.watch(
       authNotifierProvider.select((s) => s.isLoggedIn),
     );
@@ -140,7 +188,9 @@ class _OrdersScreenState extends ConsumerState<OrdersScreen> {
               child: !isLoggedIn
                   ? _buildNeedLogin(context)
                   : _loading
-                      ? const Center(child: CircularProgressIndicator(color: AppColors.brand))
+                      ? const Center(
+                          child:
+                              CircularProgressIndicator(color: AppColors.brand))
                       : _error != null
                           ? _buildError(context)
                           : _orders.isEmpty
@@ -160,12 +210,13 @@ class _OrdersScreenState extends ConsumerState<OrdersScreen> {
         children: [
           Icon(Icons.receipt_long, size: 64, color: Colors.grey[300]),
           const SizedBox(height: 16),
-          Text('Login untuk melihat pesanan', style: TextStyle(fontSize: 15, color: Colors.grey[600])),
+          Text('Login untuk melihat pesanan',
+              style: TextStyle(fontSize: 15, color: Colors.grey[600])),
           const SizedBox(height: 20),
           ElevatedButton(
             onPressed: () async {
-              context.push(AppRoutes.login);
-              _load();
+              await context.push(AppRoutes.login);
+              if (mounted) _load();
             },
             style: ElevatedButton.styleFrom(
               backgroundColor: AppColors.brand,
@@ -190,7 +241,9 @@ class _OrdersScreenState extends ConsumerState<OrdersScreen> {
           const SizedBox(height: 16),
           ElevatedButton(
             onPressed: _load,
-            style: ElevatedButton.styleFrom(backgroundColor: AppColors.brand, foregroundColor: Colors.white),
+            style: ElevatedButton.styleFrom(
+                backgroundColor: AppColors.brand,
+                foregroundColor: Colors.white),
             child: const Text('Coba Lagi'),
           ),
         ],
@@ -205,7 +258,8 @@ class _OrdersScreenState extends ConsumerState<OrdersScreen> {
         children: [
           Icon(Icons.receipt_long, size: 64, color: Colors.grey[300]),
           const SizedBox(height: 16),
-          const Text('Belum ada pesanan', style: TextStyle(fontSize: 15, color: AppColors.grey)),
+          const Text('Belum ada pesanan',
+              style: TextStyle(fontSize: 15, color: AppColors.grey)),
         ],
       ),
     );
@@ -232,9 +286,11 @@ class _OrdersScreenState extends ConsumerState<OrdersScreen> {
               borderRadius: BorderRadius.circular(12),
             ),
             child: Theme(
-              data: Theme.of(context).copyWith(dividerColor: Colors.transparent),
+              data:
+                  Theme.of(context).copyWith(dividerColor: Colors.transparent),
               child: ExpansionTile(
-                shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(12)),
+                shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12)),
                 title: Row(
                   children: [
                     Expanded(
@@ -243,28 +299,34 @@ class _OrdersScreenState extends ConsumerState<OrdersScreen> {
                         children: [
                           Text(
                             order.orderCode,
-                            style: const TextStyle(fontSize: 14, fontWeight: FontWeight.bold),
+                            style: const TextStyle(
+                                fontSize: 14, fontWeight: FontWeight.bold),
                           ),
                           if (createdAt != null)
                             Text(
                               '${createdAt.day}/${createdAt.month}/${createdAt.year} '
                               '${createdAt.hour.toString().padLeft(2, '0')}:'
                               '${createdAt.minute.toString().padLeft(2, '0')}'
-                              '${order.isPaid ? '' : ' • Belum bayar'}',
-                              style: TextStyle(fontSize: 12, color: Colors.grey[500]),
+                              '${order.isPaid ? '' : ' • ${paymentStatusLabel(order.paymentStatus)}'}',
+                              style: TextStyle(
+                                  fontSize: 12, color: Colors.grey[500]),
                             ),
                         ],
                       ),
                     ),
                     Container(
-                      padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 4),
+                      padding: const EdgeInsets.symmetric(
+                          horizontal: 10, vertical: 4),
                       decoration: BoxDecoration(
                         color: _statusColor(status).withValues(alpha: 0.1),
                         borderRadius: BorderRadius.circular(20),
                       ),
                       child: Text(
                         _statusLabel(status),
-                        style: TextStyle(fontSize: 11, fontWeight: FontWeight.w600, color: _statusColor(status)),
+                        style: TextStyle(
+                            fontSize: 11,
+                            fontWeight: FontWeight.w600,
+                            color: _statusColor(status)),
                       ),
                     ),
                   ],
@@ -299,18 +361,71 @@ class _OrdersScreenState extends ConsumerState<OrdersScreen> {
                           );
                         }),
                         const Divider(),
-                        _infoRow('Alamat',
-                            order.shippingAddress.isEmpty ? '-' : order.shippingAddress),
+                        _infoRow(
+                            'Alamat',
+                            order.shippingAddress.isEmpty
+                                ? '-'
+                                : order.shippingAddress),
                         if (order.customerPhone.isNotEmpty)
                           _infoRow('Telp', order.customerPhone),
                         if (order.notes.isNotEmpty)
                           _infoRow('Catatan', order.notes),
-                        if (order.canCancel) ...[
+                        if (order.subtotal > 0) ...[
+                          _infoRow('Subtotal', formatRupiah(order.subtotal)),
+                          _infoRow(
+                            'Ongkir',
+                            order.shippingCost == 0
+                                ? 'Gratis'
+                                : formatRupiah(order.shippingCost),
+                          ),
+                        ],
+                        if (order.paymentStatus != 'unpaid')
+                          _infoRow('Pembayaran',
+                              paymentStatusLabel(order.paymentStatus)),
+                        if (order.trackingNumber.isNotEmpty)
+                          _infoRow('Resi', order.trackingNumber),
+                        if (order.canCancel ||
+                            (order.paymentStatus == 'unpaid' &&
+                                order.status != 'cancelled')) ...[
                           const SizedBox(height: 12),
                           PaymentInfo(
                             orderCode: order.orderCode,
                             total: total,
                           ),
+                        ],
+                        if (order.paymentStatus == 'unpaid' &&
+                            order.status != 'cancelled') ...[
+                          const SizedBox(height: 8),
+                          SizedBox(
+                            width: double.infinity,
+                            child: OutlinedButton.icon(
+                              onPressed: _uploadingOrderId == order.id
+                                  ? null
+                                  : () => _uploadProof(order),
+                              icon: _uploadingOrderId == order.id
+                                  ? const SizedBox(
+                                      width: 16,
+                                      height: 16,
+                                      child: CircularProgressIndicator(
+                                          strokeWidth: 2),
+                                    )
+                                  : const Icon(Icons.upload_file, size: 18),
+                              label: Text(
+                                _uploadingOrderId == order.id
+                                    ? 'Mengunggah…'
+                                    : 'Upload Bukti Transfer',
+                                style: const TextStyle(fontSize: 13),
+                              ),
+                              style: OutlinedButton.styleFrom(
+                                foregroundColor: AppColors.brand,
+                                side: const BorderSide(color: AppColors.brand),
+                                shape: RoundedRectangleBorder(
+                                    borderRadius: BorderRadius.circular(10)),
+                              ),
+                            ),
+                          ),
+                        ],
+                        if (order.canCancel) ...[
                           const SizedBox(height: 8),
                           SizedBox(
                             width: double.infinity,
@@ -350,7 +465,8 @@ class _OrdersScreenState extends ConsumerState<OrdersScreen> {
         children: [
           SizedBox(
             width: 70,
-            child: Text(label, style: TextStyle(fontSize: 12, color: Colors.grey[500])),
+            child: Text(label,
+                style: TextStyle(fontSize: 12, color: Colors.grey[500])),
           ),
           Expanded(
             child: Text(value, style: const TextStyle(fontSize: 12)),
@@ -359,5 +475,4 @@ class _OrdersScreenState extends ConsumerState<OrdersScreen> {
       ),
     );
   }
-
 }

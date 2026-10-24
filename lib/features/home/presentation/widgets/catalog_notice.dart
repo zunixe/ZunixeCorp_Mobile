@@ -22,8 +22,7 @@ class CatalogNotice extends StatelessWidget {
     if (loading) {
       return const Padding(
         padding: EdgeInsets.symmetric(vertical: 32),
-        child: Center(
-            child: CircularProgressIndicator(color: AppColors.brand)),
+        child: Center(child: CircularProgressIndicator(color: AppColors.brand)),
       );
     }
     if (error != null) {

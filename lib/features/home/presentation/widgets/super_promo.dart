@@ -1,20 +1,12 @@
 import 'package:flutter/material.dart';
+import 'package:go_router/go_router.dart';
+import 'package:zunixe_corp_mobile/core/router/app_routes.dart';
 import 'package:zunixe_corp_mobile/core/theme/app_colors.dart';
 
-/// Kartu hitung mundur promo akhir bulan.
+/// Kartu promo home. Tanpa hitung mundur palsu: hanya ajakan melihat produk
+/// yang memang sedang diskon (harga coret berasal dari data katalog).
 class SuperPromo extends StatelessWidget {
-  const SuperPromo({
-    super.key,
-    required this.days,
-    required this.hours,
-    required this.minutes,
-    required this.seconds,
-  });
-
-  final int days;
-  final int hours;
-  final int minutes;
-  final int seconds;
+  const SuperPromo({super.key});
 
   @override
   Widget build(BuildContext context) {
@@ -29,89 +21,53 @@ class SuperPromo extends StatelessWidget {
           end: Alignment.bottomRight,
         ),
       ),
-      child: Column(
+      child: Row(
         children: [
-          const Text(
-            'Super Promo',
-            style: TextStyle(
-                color: Colors.white,
-                fontSize: 20,
-                fontWeight: FontWeight.bold),
+          Container(
+            padding: const EdgeInsets.all(10),
+            decoration: BoxDecoration(
+              color: Colors.white.withValues(alpha: 0.15),
+              borderRadius: BorderRadius.circular(12),
+            ),
+            child: const Icon(Icons.local_offer, color: Colors.white, size: 26),
           ),
-          const SizedBox(height: 4),
-          Text(
-            'Promo terbatas hingga akhir bulan',
-            style: TextStyle(
-                color: Colors.white.withValues(alpha: 0.9), fontSize: 13),
+          const SizedBox(width: 12),
+          Expanded(
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                const Text(
+                  'Promo Spesial',
+                  style: TextStyle(
+                      color: Colors.white,
+                      fontSize: 18,
+                      fontWeight: FontWeight.bold),
+                ),
+                const SizedBox(height: 4),
+                Text(
+                  'Produk pilihan dengan harga lebih hemat — selama stok tersedia.',
+                  style: TextStyle(
+                      color: Colors.white.withValues(alpha: 0.9),
+                      fontSize: 12,
+                      height: 1.4),
+                ),
+              ],
+            ),
           ),
-          const SizedBox(height: 12),
-          Row(
-            mainAxisAlignment: MainAxisAlignment.center,
-            children: [
-              _CountdownBox(days.toString(), 'Hari'),
-              const SizedBox(width: 8),
-              const Text(':',
-                  style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 24,
-                      fontWeight: FontWeight.bold)),
-              const SizedBox(width: 8),
-              _CountdownBox(hours.toString().padLeft(2, '0'), 'Jam'),
-              const SizedBox(width: 8),
-              const Text(':',
-                  style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 24,
-                      fontWeight: FontWeight.bold)),
-              const SizedBox(width: 8),
-              _CountdownBox(minutes.toString().padLeft(2, '0'), 'Menit'),
-              const SizedBox(width: 8),
-              const Text(':',
-                  style: TextStyle(
-                      color: Colors.white,
-                      fontSize: 24,
-                      fontWeight: FontWeight.bold)),
-              const SizedBox(width: 8),
-              _CountdownBox(seconds.toString().padLeft(2, '0'), 'Detik'),
-            ],
+          const SizedBox(width: 8),
+          TextButton(
+            onPressed: () => context.push(AppRoutes.productsFull),
+            style: TextButton.styleFrom(
+              foregroundColor: Colors.white,
+              backgroundColor: Colors.white.withValues(alpha: 0.18),
+              padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 10),
+              shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(10)),
+            ),
+            child: const Text('Lihat', style: TextStyle(fontSize: 13)),
           ),
         ],
       ),
-    );
-  }
-}
-
-class _CountdownBox extends StatelessWidget {
-  const _CountdownBox(this.value, this.label);
-
-  final String value;
-  final String label;
-
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-      children: [
-        Container(
-          padding: const EdgeInsets.symmetric(horizontal: 10, vertical: 6),
-          decoration: BoxDecoration(
-            color: Colors.white.withValues(alpha: 0.2),
-            borderRadius: BorderRadius.circular(6),
-          ),
-          child: Text(
-            value,
-            style: const TextStyle(
-                color: Colors.white,
-                fontSize: 20,
-                fontWeight: FontWeight.bold),
-          ),
-        ),
-        const SizedBox(height: 4),
-        Text(
-          label,
-          style: TextStyle(
-              color: Colors.white.withValues(alpha: 0.8), fontSize: 10),
-        ),
-      ],
     );
   }
 }

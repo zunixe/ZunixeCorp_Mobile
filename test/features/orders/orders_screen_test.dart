@@ -37,6 +37,14 @@ void main() {
       expect(orderStatusColor('cancelled'), Colors.red);
       expect(orderStatusColor('completed'), const Color(0xFF1BA303));
     });
+
+    test('label status pembayaran', () {
+      expect(paymentStatusLabel('unpaid'), 'Belum bayar');
+      expect(paymentStatusLabel('waiting_confirmation'), 'Menunggu verifikasi');
+      expect(paymentStatusLabel('paid'), 'Lunas');
+      expect(paymentStatusLabel('refunded'), 'Dikembalikan');
+      expect(paymentStatusLabel('aneh'), 'aneh');
+    });
   });
 
   group('OrdersScreen widget', () {
@@ -51,8 +59,8 @@ void main() {
       return tester.pumpWidget(
         ProviderScope(
           overrides: [
-            authRepositoryProvider.overrideWithValue(
-                authRepo ?? mockAuthRepo(user: buildUser())),
+            authRepositoryProvider
+                .overrideWithValue(authRepo ?? mockAuthRepo(user: buildUser())),
             orderRepositoryProvider.overrideWithValue(orderRepo),
           ],
           child: const MaterialApp(home: OrdersScreen()),
@@ -107,8 +115,8 @@ void main() {
 
     testWidgets('error -> pesan + Coba Lagi', (tester) async {
       final repo = MockOrderRepository();
-      when(() => repo.getMyOrders(any())).thenAnswer(
-        (_) async => const Result.err(ServerFailure('net')));
+      when(() => repo.getMyOrders(any()))
+          .thenAnswer((_) async => const Result.err(ServerFailure('net')));
       await pump(tester, orderRepo: repo);
       await tester.pump();
       await tester.pump();
@@ -132,7 +140,8 @@ void main() {
       expect(find.textContaining('Rp150.000'), findsOneWidget);
     });
 
-    testWidgets('expand menampilkan item + tombol batal', (tester) async {
+    testWidgets('expand menampilkan item + tombol batal + upload bukti',
+        (tester) async {
       await pump(tester, orderRepo: repoWith([order()]));
       await tester.pump();
       await tester.pump();
@@ -140,19 +149,31 @@ void main() {
       await tester.pump();
       expect(find.text('Sensor x2'), findsOneWidget);
       expect(find.text('Batalkan Pesanan'), findsOneWidget);
+      expect(find.text('Upload Bukti Transfer'), findsOneWidget);
+    });
+
+    testWidgets('waiting_confirmation -> status verifikasi, tanpa upload',
+        (tester) async {
+      await pump(tester,
+          orderRepo: repoWith([order(payment: 'waiting_confirmation')]));
+      await tester.pump();
+      await tester.pump();
+      await tester.tap(find.text('INV-1'));
+      await tester.pump();
+      expect(find.textContaining('Menunggu verifikasi'), findsWidgets);
+      expect(find.text('Upload Bukti Transfer'), findsNothing);
     });
 
     testWidgets('order paid -> tanpa tombol batal & PaymentInfo',
         (tester) async {
-      await pump(
-          tester,
-          orderRepo: repoWith(
-              [order(status: 'completed', payment: 'paid')]));
+      await pump(tester,
+          orderRepo: repoWith([order(status: 'completed', payment: 'paid')]));
       await tester.pump();
       await tester.pump();
       await tester.tap(find.text('INV-1'));
       await tester.pump();
       expect(find.text('Batalkan Pesanan'), findsNothing);
+      expect(find.text('Upload Bukti Transfer'), findsNothing);
       expect(find.text('Selesai'), findsOneWidget);
     });
 

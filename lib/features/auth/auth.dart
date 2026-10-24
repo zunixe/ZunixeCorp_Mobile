@@ -14,3 +14,4 @@ export 'presentation/login_screen.dart';
 export 'presentation/register_screen.dart';
 export 'presentation/reset_password_screen.dart';
 export 'presentation/social_auth_buttons.dart';
+export 'presentation/auth_module.dart';
